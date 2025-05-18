@@ -1,0 +1,352 @@
+/* Modern and attractive layout improvements for Lista de Compras */
+
+/* Color palette */
+:root {
+    --primary-color: #4a90e2;
+    --primary-gradient: linear-gradient(45deg, #4a90e2, #357ABD);
+    --secondary-color: #50e3c2;
+    --background-color: #f5f7fa;
+    --text-color: #333;
+    --shadow-color: rgba(0, 0, 0, 0.15);
+    --border-radius: 12px;
+    --transition-speed: 0.3s;
+}
+
+/* Body and container */
+body {
+    background-color: var(--background-color);
+    color: var(--text-color);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    padding-top: 70px; /* space for fixed navbar */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 1rem;
+}
+
+/* Navbar */
+.navbar {
+    background: var(--primary-gradient);
+    box-shadow: 0 4px 8px var(--shadow-color);
+    /* Removido backdrop-filter pois pode causar problemas de performance */
+}
+
+.navbar-brand {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: white !important;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+}
+
+.navbar-toggler {
+     border: none; /* Remove a borda do botão do hambúrguer */
+}
+
+.navbar-toggler-icon {
+     background-image: url("data:image/svg+xml,%c3%ab%c2%8c%c2%84"); /* Ícone hambúrguer branco */
+     filter: brightness(0) invert(1); /* Garante que o ícone seja branco */
+}
+
+
+/* Offcanvas */
+.offcanvas {
+    background: white;
+    border-radius: var(--border-radius);
+    box-shadow: 0 8px 24px var(--shadow-color);
+    padding: 1rem;
+}
+
+.offcanvas-header {
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 1rem;
+}
+
+.offcanvas-title {
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+.offcanvas-body form { /* Estilo para os formulários dentro do offcanvas */
+    background: #f8f9fa; /* Cor de fundo mais clara para destacar */
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 8px var(--shadow-color);
+}
+
+.offcanvas-body h6 { /* Estilo para os títulos dos formulários no offcanvas */
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+
+/* Forms */
+/* Removido o estilo genérico para form, agora os formulários dentro do offcanvas têm estilo próprio */
+
+label {
+    font-weight: 600;
+    color: var(--text-color); /* Ajustado para a cor de texto geral */
+    margin-bottom: 0.5rem;
+    display: block; /* Garante que o label fique em sua própria linha */
+}
+
+input.form-control, select.form-select {
+    border-radius: var(--border-radius);
+    border: 1.5px solid #ccc;
+    transition: border-color var(--transition-speed);
+    font-size: 1rem; /* Tamanho de fonte ligeiramente menor */
+    padding: 0.75rem 1rem; /* Ajuste no padding */
+}
+
+input.form-control:focus, select.form-select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 5px rgba(74, 144, 226, 0.5); /* Ajuste na sombra do focus */
+    outline: none;
+}
+
+/* Buttons */
+.btn-primary {
+    background: var(--primary-gradient);
+    border: none;
+    font-weight: 600;
+    border-radius: var(--border-radius);
+    transition: opacity var(--transition-speed);
+}
+
+.btn-primary:hover {
+    opacity: 0.9;
+}
+
+.btn-secondary {
+    background: #6c757d; /* Cor padrão do Bootstrap secondary */
+    border: none;
+    font-weight: 600;
+    border-radius: var(--border-radius);
+     transition: opacity var(--transition-speed);
+}
+
+.btn-secondary:hover {
+    opacity: 0.9;
+}
+
+.btn-warning {
+    background: #ffc107; /* Cor padrão do Bootstrap warning */
+    border: none;
+    font-weight: 600;
+    border-radius: var(--border-radius);
+     transition: opacity var(--transition-speed);
+}
+
+.btn-warning:hover {
+    opacity: 0.9;
+}
+
+
+.btn-danger {
+    background: #dc3545; /* Cor padrão do Bootstrap danger */
+    border: none;
+    font-weight: 600;
+    border-radius: var(--border-radius);
+     transition: opacity var(--transition-speed);
+}
+
+.btn-danger:hover {
+    background: #c82333;
+}
+
+
+.btn-outline-secondary {
+    border-radius: var(--border-radius);
+    transition: background var(--transition-speed), color var(--transition-speed);
+    font-size: 1rem; /* Tamanho de fonte menor para este botão */
+    padding: 0.75rem 1rem; /* Ajuste no padding */
+}
+
+.btn-outline-secondary:hover, .btn-outline-secondary:focus {
+    background: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+    outline: none;
+}
+
+
+/* Floating Action Button */
+#fabAddItem {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 60px;
+    height: 60px;
+    font-size: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--primary-gradient); /* Usando gradient */
+    color: white;
+    border-radius: 50%;
+    box-shadow: 0 8px 20px var(--shadow-color);
+    cursor: pointer;
+    z-index: 1100;
+    transition: background var(--transition-speed), box-shadow var(--transition-speed);
+    border: none; /* Remove a borda padrão do botão */
+}
+
+#fabAddItem:hover {
+    background: var(--secondary-color);
+    box-shadow: 0 12px 30px var(--shadow-color);
+    color: white;
+}
+
+/* Shopping list */
+#shoppingList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.list-group-item {
+    border-radius: var(--border-radius);
+    margin-bottom: 0.75rem;
+    box-shadow: 0 2px 8px var(--shadow-color);
+    transition: background var(--transition-speed);
+    display: flex; /* Usar flexbox para alinhar conteúdo */
+    justify-content: space-between; /* Espaço entre conteúdo e botões */
+    align-items: center; /* Alinhamento vertical */
+    padding: 1rem 1.5rem; /* Padding interno */
+}
+
+.list-group-item.active {
+    background: var(--primary-gradient);
+    border: none;
+    color: white;
+    font-weight: 700;
+    font-size: 1.2rem;
+}
+
+.list-group-item:hover:not(.active) { /* Hover exceto no cabeçalho da categoria */
+    background: #e6f0ff;
+    cursor: pointer;
+}
+
+.list-item-content { /* Div para agrupar checkbox, nome e quantidade */
+    display: flex;
+    align-items: center;
+    flex-grow: 1; /* Permite que o conteúdo ocupe espaço disponível */
+    margin-right: 1rem; /* Espaço entre o conteúdo e os botões de ação */
+}
+
+.item-name {
+    flex-grow: 1; /* Permite que o nome ocupe o máximo de espaço */
+    margin-right: 10px; /* Espaço entre o nome e a quantidade */
+}
+
+.item-quantity {
+    font-weight: 600;
+    color: var(--primary-color); /* Destaca a quantidade */
+}
+
+
+/* Checkbox */
+.form-check-input {
+    width: 1.2rem; /* Tamanho levemente menor */
+    height: 1.2rem; /* Tamanho levemente menor */
+    cursor: pointer;
+    margin-right: 0.75rem; /* Espaço à direita do checkbox */
+    flex-shrink: 0; /* Evita que o checkbox diminua */
+}
+
+/* Remove button */
+.btn-item-remove { /* Classe específica para o botão de remover item */
+    background: #e74c3c; /* Cor vermelha */
+    border: none;
+    color: white;
+    font-size: 1rem; /* Tamanho do ícone */
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%; /* Botão redondo */
+    transition: background var(--transition-speed);
+    flex-shrink: 0; /* Evita que o botão diminua */
+}
+
+.btn-item-remove:hover {
+    background: #c0392b;
+}
+
+
+/* Emoji picker */
+#emojiPicker {
+    border-radius: var(--border-radius);
+    box-shadow: 0 4px 12px var(--shadow-color);
+    background: white;
+    padding: 10px;
+    display: flex;
+    flex-wrap: wrap; /* Permite que os emojis quebrem linha */
+    max-height: 150px; /* Altura máxima para o picker */
+    overflow-y: auto; /* Adiciona scroll se necessário */
+}
+
+#emojiPicker span {
+    font-size: 1.5rem; /* Tamanho maior para os emojis */
+    margin: 4px; /* Espaçamento entre emojis */
+    cursor: pointer;
+    transition: transform 0.1s ease-in-out; /* Animação leve */
+}
+
+#emojiPicker span:hover {
+    transform: scale(1.2); /* Aumenta um pouco no hover */
+    background: none; /* Remove background do hover, já que o scale já é um feedback */
+}
+
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .container {
+        padding: 0.5rem; /* Reduz o padding em telas menores */
+    }
+
+     body {
+        padding-top: 60px; /* Ajusta padding do body para navbar menor */
+    }
+
+     .navbar {
+        padding: 0.5rem 1rem; /* Ajusta padding da navbar */
+    }
+
+    #fabAddItem {
+        width: 50px;
+        height: 50px;
+        font-size: 2rem;
+        bottom: 20px;
+        right: 20px;
+    }
+
+    .offcanvas-body form {
+        padding: 1rem;
+    }
+
+     .list-group-item {
+        padding: 0.75rem 1rem; /* Reduz padding dos itens da lista */
+    }
+
+    .item-name {
+         margin-right: 5px; /* Reduz espaço */
+    }
+
+    .item-quantity {
+         font-size: 0.9rem; /* Tamanho menor para quantidade */
+    }
+
+     .form-check-input {
+        width: 1.1rem;
+        height: 1.1rem;
+        margin-right: 0.5rem;
+    }
+}
