@@ -1,5 +1,5 @@
 // ** IMPORTANTE: Substitua este URL pelo URL do seu Aplicativo Web Google Apps Script **
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx-sFCZVkQfr2_Q7UacZ-Vd2jmjdGWwP-bHwfvub0Q2J7V903OjwbZO8q4UgcXUNae3/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw0TM7lWZOtl_s706jnYqRkHY1W9FBqzZI3wryeKqWs5A9gqjYIE6psnOTWc-0YCyVz/exec';
 
 document.addEventListener('DOMContentLoaded', function () {
     const fabAddItemButton = document.getElementById('fabAddItem'); // FAB agora apenas abre o offcanvas
@@ -82,8 +82,6 @@ document.addEventListener('DOMContentLoaded', function () {
             fetchShoppingList();
         }
     }
-
-
 
     // --- Funções de Local Storage (REMOVIDAS/IGNORADAS) ---
     // Não usaremos mais Local Storage, os dados virão da planilha.
