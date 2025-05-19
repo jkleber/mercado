@@ -1,7 +1,8 @@
-// Este script usa o Firebase Realtime Database para armazenar e sincronizar a lista de compras.
-// Certifique-se de que o Firebase SDK (firebase-app.js, firebase-database.js)
+// Este script usa o Firebase Realtime Database (SDK v8) para armazenar e sincronizar a lista de compras.
+// Certifique-se de que o Firebase SDK (firebase-app.js, firebase-database.js v8.x.x)
 // e suas configurações (firebaseConfig) estejam incluídos no seu arquivo index.html
 // em tags <script> ANTES deste script.
+// O index.html deve inicializar o app Firebase e criar as referências 'database' e 'itemsRef'.
 
 document.addEventListener('DOMContentLoaded', function () {
     // --- Referências aos Elementos HTML ---
@@ -31,6 +32,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // --- Inicialização e Conexão com Firebase ---
 
     // Verifica se o Firebase SDK e as referências foram carregados no index.html
+    // 'database' e 'itemsRef' devem ser definidos no index.html antes deste script.
     if (typeof firebase === 'undefined' || typeof database === 'undefined' || typeof itemsRef === 'undefined') {
         console.error("Firebase SDK ou referências de banco de dados não carregadas corretamente no index.html.");
         alert("Erro na configuração do Firebase. Verifique o arquivo index.html.");
@@ -46,7 +48,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // --- Sincronização em Tempo Real com Firebase ---
 
-    // Ouve mudanças nos dados no nó 'items' em tempo real
+    // Ouve mudanças nos dados no nó 'items' em tempo real (Sintaxe v8)
     // Esta função é acionada na carga inicial e sempre que os dados mudam no Firebase.
     itemsRef.on('value', (snapshot) => {
         const data = snapshot.val(); // Obtém os dados do nó 'items' como um objeto
@@ -73,17 +75,21 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
 
-    // --- Funções de Interação com Firebase ---
+    // --- Funções de Interação com Firebase (Sintaxe v8) ---
 
     /**
      * Adiciona um novo item ao Firebase Realtime Database.
      * @param {object} itemData - Objeto contendo os dados do item (Nome, Quantidade, Categoria, Comprado).
      */
     async function addItemToFirebase(itemData) {
+        if (typeof itemsRef === 'undefined') {
+             console.error("Referência do Firebase itemsRef não definida.");
+             alert("Erro interno: Firebase não configurado corretamente.");
+             return;
+        }
         try {
-            // 'push()' cria uma nova chave única sob 'itemsRef' e adiciona os dados.
-            // Retorna uma Promise que resolve com a referência do novo item.
-            const newItemRef = await push(itemsRef, itemData);
+            // Sintaxe v8: itemsRef.push()
+            const newItemRef = await itemsRef.push(itemData);
             console.log("Item adicionado ao Firebase com ID:", newItemRef.key);
             // A UI será atualizada automaticamente pela função itemsRef.on('value', ...)
         } catch (error) {
@@ -98,11 +104,14 @@ document.addEventListener('DOMContentLoaded', function () {
      * @param {object} updatedData - Objeto contendo os dados a serem atualizados (ex: { Comprado: true }).
      */
     async function updateItemInFirebase(itemId, updatedData) {
+         if (typeof itemsRef === 'undefined') {
+             console.error("Referência do Firebase itemsRef não definida.");
+             alert("Erro interno: Firebase não configurado corretamente.");
+             return;
+        }
          try {
-             // Obtém uma referência ao item específico usando seu ID (child(itemId))
-             const itemRef = ref(database, 'items/' + itemId);
-             // Atualiza os dados do item
-             await update(itemRef, updatedData);
+             // Sintaxe v8: itemsRef.child(itemId).update()
+             await itemsRef.child(itemId).update(updatedData);
              console.log("Item atualizado no Firebase com ID:", itemId);
              // A UI será atualizada automaticamente pela função itemsRef.on('value', ...)
          } catch (error) {
@@ -116,11 +125,14 @@ document.addEventListener('DOMContentLoaded', function () {
      * @param {string} itemId - O ID (chave) do item no Firebase.
      */
     async function removeItemFromFirebase(itemId) {
+         if (typeof itemsRef === 'undefined') {
+             console.error("Referência do Firebase itemsRef não definida.");
+             alert("Erro interno: Firebase não configurado corretamente.");
+             return;
+        }
          try {
-             // Obtém uma referência ao item específico usando seu ID
-             const itemRef = ref(database, 'items/' + itemId);
-             // Remove o item
-             await remove(itemRef);
+             // Sintaxe v8: itemsRef.child(itemId).remove()
+             await itemsRef.child(itemId).remove();
              console.log("Item removido do Firebase com ID:", itemId);
              // A UI será atualizada automaticamente pela função itemsRef.on('value', ...)
          } catch (error) {
@@ -133,19 +145,25 @@ document.addEventListener('DOMContentLoaded', function () {
      * Remove todos os itens marcados como 'Comprado' do Firebase.
      */
     async function clearBoughtFromFirebase() {
+         if (typeof itemsRef === 'undefined') {
+             console.error("Referência do Firebase itemsRef não definida.");
+             alert("Erro interno: Firebase não configurado corretamente.");
+             return;
+        }
          try {
              // Para limpar comprados, precisamos iterar sobre os itens locais (que já estão sincronizados)
              // e criar um objeto de atualizações para remover no Firebase.
              const updates = {};
              items.forEach(item => {
                  if (item.Comprado) { // Verifica a propriedade 'Comprado' do item
-                     updates[item.id] = null; // Definir como null remove o item no Firebase
+                     // Sintaxe v8: Definir como null no update remove o nó
+                     updates[item.id] = null;
                  }
              });
 
              if (Object.keys(updates).length > 0) {
-                 // Executa as remoções em lote usando update no nó pai
-                 await update(itemsRef, updates);
+                 // Sintaxe v8: itemsRef.update(updates) para atualizações em lote/remoções
+                 await itemsRef.update(updates);
                  console.log("Itens comprados limpos do Firebase.");
                   // A UI será atualizada automaticamente pela função itemsRef.on('value', ...)
              } else {
@@ -162,9 +180,14 @@ document.addEventListener('DOMContentLoaded', function () {
      * Remove todos os itens do Firebase.
      */
     async function clearAllFromFirebase() {
+         if (typeof itemsRef === 'undefined') {
+             console.error("Referência do Firebase itemsRef não definida.");
+             alert("Erro interno: Firebase não configurado corretamente.");
+             return;
+        }
          try {
-             // Remove todo o nó 'items' no Firebase
-             await remove(itemsRef);
+             // Sintaxe v8: itemsRef.remove() remove todo o nó
+             await itemsRef.remove();
              console.log("Todos os itens limpos do Firebase.");
              // A UI será atualizada automaticamente pela função itemsRef.on('value', ...)
          } catch (error) {
