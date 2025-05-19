@@ -666,38 +666,9 @@ input.form-control:focus, select.form-select:focus {
     margin-right: 8px;
 }
 
-/* Animações */
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
-
-@keyframes slideIn {
-    from { transform: translateY(20px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
-}
-
-@keyframes pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-    100% { transform: scale(1); }
-}
-
-.fade-in {
-    animation: fadeIn var(--animation-duration) ease-in-out;
-}
-
-.slide-in {
-    animation: slideIn var(--animation-duration) ease-in-out;
-}
-
-.pulse {
-    animation: pulse var(--animation-duration) ease-in-out;
-}
-
-/* Item adicionado recentemente */
-.item-added {
-    animation: pulse var(--animation-duration) ease-in-out;
+/* Animações desativadas conforme solicitado pelo usuário */
+.fade-in, .slide-in, .pulse, .item-added {
+    /* Animações removidas */
 }
 
 /* Responsive adjustments */

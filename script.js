@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', function () {
     let sortableInstance = null;
 
     // Lista de emojis para o picker
-    const emojis = ['🍎', '🥦', '🥛', '🍖', '🍹', '🍞', '🍗', '🍇', '🍉', '🍌', '🍒', '🥕', '🥩', '🍤', '🍰', '🍪', '🍕', '🌽', '🍅', '🥥', '🛒', '🛍️', '📋', '📍']; // Adicionados alguns emojis relacionados
+    const emojis = ['🍎', '🥦', '🥛', '🍖', '🍹', '🍞', '🍗', '🍇', '🍉', '🍌', '🍒', '🥕', '🥩', '🍤', '🍰', '🍪', '🍕', '🌽', '🍅', '🥥', '🛒', '🛍️', '📋', '📍', '🧀', '🥚', '🥓', '🥖', '🥐', '🧈', '🧂', '🥫', '🥔', '🍠', '🍯', '🥜', '🫘', '🍝', '🥞', '🧊', '🧃', '🧴', '🧻', '🧼', '🧹', '🧺', '🪣', '🧷', '🪒', '🪥', '🧸', '📱', '💻', '🔋', '💡', '🧾']; // Emojis relacionados a produtos de supermercado
 
     // --- Inicialização e Conexão com Firebase ---
 
@@ -1221,21 +1221,7 @@ document.addEventListener('DOMContentLoaded', function () {
         await deleteCategory(categoryName, deleteOption, targetCategory);
     });
 
-    // Limpar Itens Comprados
-    clearBoughtButton.addEventListener('click', async () => {
-        if (confirm('Tem certeza que deseja remover todos os itens comprados?')) {
-            await clearBoughtFromFirebase(); // Chama a função para limpar no Firebase
-             // A lista será renderizada automaticamente pela função itemsRef.on('value', ...)
-        }
-    });
-
-    // Limpar Tudo
-    clearAllButton.addEventListener('click', async () => {
-         if (confirm('Tem certeza que deseja limpar a lista inteira?')) {
-             await clearAllFromFirebase(); // Chama a função para limpar tudo no Firebase
-             // A lista será renderizada automaticamente pela função itemsRef.on('value', ...)
-         }
-    });
+    // Botões de limpar removidos conforme solicitado pelo usuário
     
     // Filtros
     filterButtons.forEach(button => {
@@ -1253,35 +1239,7 @@ document.addEventListener('DOMContentLoaded', function () {
         updateSearch(e.target.value.trim());
     });
     
-    // Atalhos de teclado
-    document.addEventListener('keydown', (e) => {
-        // Não processa atalhos se estiver em um campo de texto
-        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') {
-            return;
-        }
-        
-        if (e.key === 'n' || e.key === 'N') {
-            // Abre o menu para adicionar novo item
-            const offcanvasMenu = document.getElementById('offcanvasMenu');
-            const offcanvasInstance = new bootstrap.Offcanvas(offcanvasMenu);
-            offcanvasInstance.show();
-            setTimeout(() => {
-                itemInput.focus();
-            }, 500);
-        } else if (e.key === 'f' || e.key === 'F') {
-            // Foca no campo de busca
-            if (window.innerWidth >= 768) {
-                searchInput.focus();
-            } else {
-                const offcanvasMenu = document.getElementById('offcanvasMenu');
-                const offcanvasInstance = new bootstrap.Offcanvas(offcanvasMenu);
-                offcanvasInstance.show();
-                setTimeout(() => {
-                    searchInputMobile.focus();
-                }, 500);
-            }
-        }
-    });
+    // Atalhos de teclado removidos conforme solicitado pelo usuário
 
     // --- Inicialização ---
     // A sincronização com o Firebase é iniciada automaticamente pela função itemsRef.on('value', ...)
