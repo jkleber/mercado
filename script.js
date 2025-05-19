@@ -1,5 +1,5 @@
 // ** IMPORTANTE: Substitua este URL pelo URL do seu Aplicativo Web Google Apps Script **
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwUa_SjcvMDZuDvUjm1SSrZQ9dh_AWfQ5o75nu1NRQwE24i8TrDCQBWbAceT_wO0Xnu/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx-sFCZVkQfr2_Q7UacZ-Vd2jmjdGWwP-bHwfvub0Q2J7V903OjwbZO8q4UgcXUNae3/exec';
 
 document.addEventListener('DOMContentLoaded', function () {
     const fabAddItemButton = document.getElementById('fabAddItem'); // FAB agora apenas abre o offcanvas
@@ -51,14 +51,6 @@ document.addEventListener('DOMContentLoaded', function () {
     // Função para enviar alterações para a planilha
     async function updateShoppingList(itemData, action) {
         try {
-            // Realiza a requisição OPTIONS para o preflight
-            await fetch(APPS_SCRIPT_URL, {
-                method: 'OPTIONS',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
-    
             const response = await fetch(APPS_SCRIPT_URL, {
                 method: 'POST',
                 headers: {
@@ -90,6 +82,7 @@ document.addEventListener('DOMContentLoaded', function () {
             fetchShoppingList();
         }
     }
+
 
 
     // --- Funções de Local Storage (REMOVIDAS/IGNORADAS) ---
