@@ -1,5 +1,5 @@
 // ** IMPORTANTE: Substitua este URL pelo URL do seu Aplicativo Web Google Apps Script **
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbydbihgBODtCIjR0X7XDieuPHpRO2VxepK1dJfOMML0ZLaALYJ2OwAMVok8sNXcYa5N/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx_VA3k_VC-m6On9h3ebOKK9yUPYfBpvAT7lKz70HuLECQ7PdnESxEhFaUsqfYun7_D/exec';
 
 document.addEventListener('DOMContentLoaded', function () {
     const fabAddItemButton = document.getElementById('fabAddItem'); // FAB agora apenas abre o offcanvas
