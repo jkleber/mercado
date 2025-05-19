@@ -1,4 +1,4 @@
-/* Modern and attractive layout improvements for Lista de Compras */
+/* Modern and attractive layout for shopping list app */
 
 /* Color palette */
 :root {
@@ -98,63 +98,67 @@ body {
 }
 
 .offcanvas-body form { /* Estilo para os formulários dentro do offcanvas */
-    background: #f8f9fa; /* Cor de fundo mais clara para destacar */
+    background: #f8f9fa;
     border-radius: var(--border-radius);
-    padding: 1.5rem;
-    margin-bottom: 1.5rem;
+    padding: 1rem;
+    margin-bottom: 1rem;
     box-shadow: 0 2px 8px var(--shadow-color);
 }
 
-.offcanvas-body h6 { /* Estilo para os títulos dos formulários no offcanvas */
-    color: var(--primary-color);
+.offcanvas-body form h6 {
+    font-weight: 700;
     margin-bottom: 1rem;
-    font-weight: 600;
+    color: var(--primary-color);
 }
 
-/* Separador de seções */
 .section-divider {
     height: 1px;
-    background-color: #ddd;
+    background: #ddd;
     margin: 1.5rem 0;
 }
 
-/* Forms */
-/* Removido o estilo genérico para form, agora os formulários dentro do offcanvas têm estilo próprio */
-
-label {
-    font-weight: 600;
-    color: var(--text-color); /* Ajustado para a cor de texto geral */
-    margin-bottom: 0.5rem;
-    display: block; /* Garante que o label fique em sua própria linha */
-}
-
-input.form-control, select.form-select {
+/* Form elements */
+.form-control, .form-select {
     border-radius: var(--border-radius);
-    border: 1.5px solid #ccc;
-    transition: border-color var(--transition-speed);
-    font-size: 1rem; /* Tamanho de fonte ligeiramente menor */
-    padding: 0.75rem 1rem; /* Ajuste no padding */
-}
-
-input.form-control:focus, select.form-select:focus {
-    border-color: var(--primary-color);
-    box-shadow: 0 0 5px rgba(74, 144, 226, 0.5); /* Ajuste na sombra do focus */
-    outline: none;
-}
-
-/* Buttons */
-.btn-primary {
-    background: var(--primary-gradient);
-    border: none;
-    font-weight: 600;
-    border-radius: var(--border-radius);
+    border: 1px solid #ddd;
+    padding: 0.75rem 1rem;
     transition: all var(--transition-speed);
 }
 
+.form-control:focus, .form-select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.25);
+}
+
+.form-label {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #555;
+}
+
+.input-group-text {
+    border-radius: var(--border-radius);
+    background: #f0f0f0;
+    border: 1px solid #ddd;
+}
+
+/* Buttons */
+.btn {
+    border-radius: var(--border-radius);
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    transition: all var(--transition-speed);
+}
+
+.btn-primary {
+    background: var(--primary-gradient);
+    border: none;
+}
+
 .btn-primary:hover {
-    opacity: 0.9;
+    background: linear-gradient(45deg, #357ABD, #2868A0);
     transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px rgba(74, 144, 226, 0.3);
 }
 
 .btn-primary:active {
@@ -162,17 +166,14 @@ input.form-control:focus, select.form-select:focus {
 }
 
 .btn-secondary {
-    background: #6c757d; /* Cor padrão do Bootstrap secondary */
+    background: #6c757d;
     border: none;
-    font-weight: 600;
-    border-radius: var(--border-radius);
-    transition: all var(--transition-speed);
 }
 
 .btn-secondary:hover {
-    opacity: 0.9;
+    background: #5a6268;
     transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
 }
 
 .btn-secondary:active {
@@ -180,17 +181,15 @@ input.form-control:focus, select.form-select:focus {
 }
 
 .btn-warning {
-    background: var(--warning-color); /* Cor padrão do Bootstrap warning */
+    background: var(--warning-color);
     border: none;
-    font-weight: 600;
-    border-radius: var(--border-radius);
-    transition: all var(--transition-speed);
+    color: #212529;
 }
 
 .btn-warning:hover {
-    opacity: 0.9;
+    background: #e0a800;
     transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px rgba(255, 193, 7, 0.3);
 }
 
 .btn-warning:active {
@@ -198,106 +197,49 @@ input.form-control:focus, select.form-select:focus {
 }
 
 .btn-danger {
-    background: var(--danger-color); /* Cor padrão do Bootstrap danger */
+    background: var(--danger-color);
     border: none;
-    font-weight: 600;
-    border-radius: var(--border-radius);
-    transition: all var(--transition-speed);
 }
 
 .btn-danger:hover {
     background: #c82333;
     transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
 }
 
 .btn-danger:active {
     transform: translateY(0);
 }
 
-.btn-success {
-    background: var(--success-color);
-    border: none;
-    font-weight: 600;
-    border-radius: var(--border-radius);
-    transition: all var(--transition-speed);
-}
-
-.btn-success:hover {
-    opacity: 0.9;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.btn-success:active {
-    transform: translateY(0);
-}
-
-.btn-outline-secondary {
-    border-radius: var(--border-radius);
-    transition: all var(--transition-speed);
-    font-size: 1rem; /* Tamanho de fonte menor para este botão */
-    padding: 0.75rem 1rem; /* Ajuste no padding */
-}
-
-.btn-outline-secondary:hover, .btn-outline-secondary:focus {
-    background: var(--primary-color);
-    color: white;
-    border-color: var(--primary-color);
-    outline: none;
-    transform: translateY(-2px);
-}
-
-.btn-outline-secondary:active {
-    transform: translateY(0);
-}
-
-/* Botões de ação para categorias */
-.category-actions {
-    display: flex;
-    gap: 0.5rem;
-}
-
 .btn-icon {
-    width: 32px;
-    height: 32px;
+    background: none;
+    border: none;
+    padding: 0.25rem;
+    border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 50%;
-    border: none;
-    background: rgba(255, 255, 255, 0.3);
-    color: white;
     transition: all var(--transition-speed);
 }
 
 .btn-icon:hover {
-    background: rgba(255, 255, 255, 0.5);
-    transform: scale(1.1);
+    background: #f0f0f0;
 }
 
-.btn-icon:active {
-    transform: scale(1);
-}
-
-.btn-icon i {
-    font-size: 1rem;
-}
-
-/* Floating Action Button */
+/* Floating Action Button (FAB) */
 #fabAddItem {
     position: fixed;
-    bottom: 30px;
-    right: 30px;
+    bottom: 2rem;
+    right: 2rem;
     width: 60px;
     height: 60px;
-    font-size: 2.5rem;
+    border-radius: 50%;
+    background: var(--primary-gradient);
+    color: white;
+    font-size: 1.5rem;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--primary-gradient); /* Usando gradient */
-    color: white;
-    border-radius: 50%;
     box-shadow: 0 8px 20px var(--shadow-color);
     cursor: pointer;
     z-index: 1100;
@@ -398,74 +340,87 @@ input.form-control:focus, select.form-select:focus {
 }
 
 .item-name {
-    flex-grow: 1; /* Permite que o nome ocupe o máximo de espaço */
-    margin-right: 10px; /* Espaço entre o nome e a quantidade */
+    margin-left: 1rem; /* Espaço entre o checkbox e o nome */
+    font-weight: 500;
+    transition: all var(--transition-speed);
 }
 
 .item-quantity {
-    font-weight: 600;
-    color: var(--primary-color); /* Destaca a quantidade */
+    margin-left: 0.5rem;
+    color: #777;
+    font-size: 0.9rem;
 }
 
-/* Item comprado */
-.bought .item-name {
-    text-decoration: line-through;
-    color: #888;
-}
-
-/* Checkbox */
 .form-check-input {
-    width: 1.2rem; /* Tamanho levemente menor */
-    height: 1.2rem; /* Tamanho levemente menor */
+    width: 1.25rem;
+    height: 1.25rem;
     cursor: pointer;
-    margin-right: 0.75rem; /* Espaço à direita do checkbox */
-    flex-shrink: 0; /* Evita que o checkbox diminua */
+    border-radius: 50%;
+    border: 2px solid #ddd;
+    transition: all var(--transition-speed);
 }
 
-/* Remove button */
-.btn-item-remove { /* Classe específica para o botão de remover item */
-    background: #e74c3c; /* Cor vermelha */
+.form-check-input:checked {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+/* Estilo para itens comprados */
+.list-group-item.bought .item-name {
+    text-decoration: line-through;
+    color: #999;
+}
+
+.list-group-item.bought .form-check-input {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+/* Botão de remover item */
+.btn-item-remove {
+    background: none;
     border: none;
-    color: white;
-    font-size: 1rem; /* Tamanho do ícone */
-    width: 32px;
-    height: 32px;
+    color: #ccc;
+    font-size: 1.25rem;
+    padding: 0.25rem;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 50%; /* Botão redondo */
     transition: all var(--transition-speed);
-    flex-shrink: 0; /* Evita que o botão diminua */
+    cursor: pointer;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
 }
 
 .btn-item-remove:hover {
-    background: #c0392b;
-    transform: scale(1.1);
-}
-
-.btn-item-remove:active {
-    transform: scale(1);
+    color: var(--danger-color);
+    background: #ffe6e6;
 }
 
 /* Swipe actions */
 .swipe-actions {
     position: absolute;
-    top: 0;
     right: 0;
+    top: 0;
     height: 100%;
     display: flex;
     transform: translateX(100%);
     transition: transform var(--transition-speed);
 }
 
+.list-group-item.swiped .swipe-actions {
+    transform: translateX(0);
+}
+
 .swipe-action {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 80px;
+    width: 70px;
     height: 100%;
     color: white;
-    font-weight: 600;
+    font-size: 1.5rem;
 }
 
 .swipe-action-check {
@@ -476,27 +431,26 @@ input.form-control:focus, select.form-select:focus {
     background: var(--danger-color);
 }
 
-.list-group-item.swiped .swipe-actions {
-    transform: translateX(0);
-}
-
 /* Emoji picker */
 #emojiPicker, #editEmojiPicker {
-    border-radius: var(--border-radius);
-    box-shadow: 0 4px 12px var(--shadow-color);
-    background: white;
-    padding: 10px;
-    display: flex;
-    flex-wrap: wrap; /* Permite que os emojis quebrem linha */
-    max-height: 150px; /* Altura máxima para o picker */
-    overflow-y: auto; /* Adiciona scroll se necessário */
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 0.5rem;
+    max-height: 200px;
+    overflow-y: auto;
+    padding: 0.5rem;
 }
 
 #emojiPicker span, #editEmojiPicker span {
-    font-size: 1.5rem; /* Tamanho maior para os emojis */
-    margin: 4px; /* Espaçamento entre emojis */
+    font-size: 1.5rem;
     cursor: pointer;
-    transition: transform 0.1s ease-in-out; /* Animação leve */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    transition: all var(--transition-speed);
 }
 
 #emojiPicker span:hover, #editEmojiPicker span:hover {
@@ -567,103 +521,101 @@ input.form-control:focus, select.form-select:focus {
     list-style: none;
     padding: 0;
     margin: 0;
+    max-height: 300px;
+    overflow-y: auto;
 }
 
 .category-item {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    padding: 0.75rem 1rem;
-    border-bottom: 1px solid #ddd;
-    transition: background var(--transition-speed);
-    cursor: grab;
+    padding: 0.75rem;
+    margin-bottom: 0.5rem;
+    background: white;
+    border-radius: var(--border-radius);
+    box-shadow: 0 2px 4px var(--shadow-color);
+    transition: all var(--transition-speed);
+    max-width: 100%; /* Garante que não ultrapasse o frame */
+    overflow: hidden; /* Esconde conteúdo que ultrapassa */
 }
 
 .category-item:hover {
-    background: #f0f0f0;
+    box-shadow: 0 4px 8px var(--shadow-color);
 }
 
-.category-item:last-child {
-    border-bottom: none;
-}
-
-.category-item.dragging {
-    opacity: 0.5;
-    background: #e6f0ff;
+.drag-handle {
+    cursor: grab;
+    margin-right: 0.5rem;
+    color: #aaa;
+    flex-shrink: 0; /* Impede que o ícone encolha */
 }
 
 .category-info {
     display: flex;
     align-items: center;
+    flex-grow: 1;
+    min-width: 0; /* Permite que o conteúdo seja truncado se necessário */
+    overflow: hidden; /* Esconde conteúdo que ultrapassa */
 }
 
 .category-icon {
     font-size: 1.5rem;
-    margin-right: 10px;
+    margin-right: 0.75rem;
+    flex-shrink: 0; /* Impede que o ícone encolha */
 }
 
 .category-name {
-    font-weight: 600;
+    font-weight: 500;
+    white-space: nowrap; /* Evita quebra de linha */
+    overflow: hidden; /* Esconde texto que ultrapassa */
+    text-overflow: ellipsis; /* Adiciona reticências */
+    max-width: 60%; /* Limita a largura do nome */
 }
 
 .category-count {
-    margin-left: 8px;
-    background: var(--primary-color);
-    color: white;
-    border-radius: 12px;
-    padding: 0.1rem 0.5rem;
+    margin-left: 0.5rem;
+    background: #f0f0f0;
+    color: #666;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     font-size: 0.8rem;
-    font-weight: 600;
+    flex-shrink: 0; /* Impede que o contador encolha */
 }
 
 .category-item-actions {
     display: flex;
     gap: 0.5rem;
+    margin-left: auto; /* Empurra para a direita */
+    flex-shrink: 0; /* Impede que os botões encolham */
 }
 
 .btn-category-edit, .btn-category-delete {
-    width: 32px;
-    height: 32px;
+    background: none;
+    border: none;
+    padding: 0.25rem;
+    border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 50%;
-    border: none;
     transition: all var(--transition-speed);
 }
 
-.btn-category-edit {
-    background: var(--primary-color);
-    color: white;
-}
-
 .btn-category-edit:hover {
-    background: #3a80d2;
-    transform: scale(1.1);
-}
-
-.btn-category-edit:active {
-    transform: scale(1);
-}
-
-.btn-category-delete {
-    background: var(--danger-color);
-    color: white;
+    background: #e6f0ff;
+    color: var(--primary-color);
 }
 
 .btn-category-delete:hover {
-    background: #c82333;
-    transform: scale(1.1);
+    background: #ffe6e6;
+    color: var(--danger-color);
 }
 
-.btn-category-delete:active {
-    transform: scale(1);
-}
-
-.drag-handle {
-    cursor: grab;
-    color: #aaa;
-    margin-right: 8px;
+.category-item.dragging {
+    opacity: 0.5;
+    background: #e6f0ff;
 }
 
 /* Animações desativadas conforme solicitado pelo usuário */
@@ -676,93 +628,20 @@ input.form-control:focus, select.form-select:focus {
     .offcanvas {
         width: 40% !important; /* Desktop width */
     }
-    
-    .search-input {
-        width: 250px;
-    }
-    
-    .search-input:focus {
-        width: 300px;
-    }
 }
 
-@media (min-width: 768px) and (max-width: 991px) {
-    .offcanvas {
-        width: 50% !important; /* Tablet width */
-    }
-}
-
-@media (max-width: 768px) {
+@media (max-width: 767.98px) {
     .container {
-        padding: 0.5rem; /* Reduz o padding em telas menores */
-    }
-
-    body {
-        padding-top: 60px; /* Ajusta padding do body para navbar menor */
-    }
-
-    .navbar {
-        padding: 0.5rem 1rem; /* Ajusta padding da navbar */
+        padding: 0.5rem;
     }
     
-    .navbar-search {
-        margin-right: 0.5rem;
-    }
-    
-    .search-input {
-        width: 150px;
-        padding: 0.4rem 0.8rem;
-    }
-    
-    .search-input:focus {
-        width: 180px;
-    }
-
-    #fabAddItem {
-        width: 50px;
-        height: 50px;
-        font-size: 2rem;
-        bottom: 20px;
-        right: 20px;
-    }
-
-    .offcanvas-body form {
-        padding: 1rem;
-    }
-
     .list-group-item {
-        padding: 0.75rem 1rem; /* Reduz padding dos itens da lista */
-    }
-
-    .item-name {
-        margin-right: 5px; /* Reduz espaço */
-    }
-
-    .item-quantity {
-        font-size: 0.9rem; /* Tamanho menor para quantidade */
-    }
-
-    .form-check-input {
-        width: 1.1rem;
-        height: 1.1rem;
-        margin-right: 0.5rem;
-    }
-    
-    .toast-container {
-        top: 70px;
-        right: 10px;
-        max-width: 90%;
-    }
-    
-    .category-actions .btn-icon {
-        width: 28px;
-        height: 28px;
+        padding: 0.75rem 1rem;
     }
     
     .filter-controls {
         flex-direction: column;
         align-items: flex-start;
-        padding: 0.75rem;
     }
     
     .filter-options {
@@ -774,9 +653,37 @@ input.form-control:focus, select.form-select:focus {
     .filter-btn {
         flex: 1;
         text-align: center;
-        font-size: 0.8rem;
-        padding: 0.25rem 0.5rem;
+    }
+    
+    #fabAddItem {
+        bottom: 1rem;
+        right: 1rem;
+        width: 50px;
+        height: 50px;
     }
 }
 
+/* Correção para o botão do offcanvas */
+.navbar-toggler:focus {
+    box-shadow: none;
+}
+
+.navbar-toggler[aria-expanded="false"] {
+    background: transparent;
+}
+
+.navbar-toggler[aria-expanded="true"] {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* Ajuste para o botão de remover item */
+.btn-item-remove {
+    color: #aaa;
+    margin-right: 8px;
+}
+
+/* Ajuste para o ícone de lixeira */
+.btn-item-remove i {
+    font-size: 1.2rem;
+}
 

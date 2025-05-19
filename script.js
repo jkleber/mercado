@@ -799,50 +799,8 @@ document.addEventListener('DOMContentLoaded', function () {
             headerLeft.appendChild(textSpan);
             headerLeft.appendChild(countSpan);
             
-            // Adiciona botões de ação para a categoria
-            const categoryActions = document.createElement('div');
-            categoryActions.className = 'category-actions';
-            
-            const editButton = document.createElement('button');
-            editButton.className = 'btn-icon';
-            editButton.innerHTML = '<i class="bi bi-pencil"></i>';
-            editButton.title = 'Editar categoria';
-            editButton.setAttribute('aria-label', `Editar categoria ${categoryName}`);
-            editButton.addEventListener('click', (e) => {
-                e.stopPropagation(); // Evita que o clique se propague para o header
-                
-                // Preenche o modal com os dados da categoria
-                editCategoryOldName.value = categoryName;
-                editCategoryName.value = categoryName;
-                editCategoryIcon.value = icon;
-                
-                // Abre o modal
-                editCategoryModalInstance.show();
-            });
-            
-            const deleteButton = document.createElement('button');
-            deleteButton.className = 'btn-icon';
-            deleteButton.innerHTML = '<i class="bi bi-trash"></i>';
-            deleteButton.title = 'Excluir categoria';
-            deleteButton.setAttribute('aria-label', `Excluir categoria ${categoryName}`);
-            deleteButton.addEventListener('click', (e) => {
-                e.stopPropagation(); // Evita que o clique se propague para o header
-                
-                // Preenche o modal com o nome da categoria
-                deleteCategoryName.textContent = categoryName;
-                
-                // Atualiza o select de categorias para mover itens
-                renderMoveToSelect(categoryName);
-                
-                // Abre o modal
-                deleteCategoryModalInstance.show();
-            });
-            
-            categoryActions.appendChild(editButton);
-            categoryActions.appendChild(deleteButton);
-            
+            // Removidos botões de editar/excluir da tela principal conforme solicitado
             header.appendChild(headerLeft);
-            header.appendChild(categoryActions);
             shoppingList.appendChild(header);
 
             // Itens da Categoria
@@ -893,10 +851,10 @@ document.addEventListener('DOMContentLoaded', function () {
                      itemContentDiv.appendChild(itemQuantitySpan);
                  }
 
-                // Botão de remover
+                // Botão de remover (alterado para ícone de lixeira)
                 const removeBtn = document.createElement('button');
                 removeBtn.className = 'btn-item-remove';
-                removeBtn.innerHTML = '<i class="bi bi-x"></i>';
+                removeBtn.innerHTML = '<i class="bi bi-trash"></i>';
                 removeBtn.title = 'Remover item';
                 removeBtn.setAttribute('aria-label', `Remover ${item.Nome} da lista`);
                 removeBtn.addEventListener('click', async (e) => {
@@ -1260,5 +1218,4 @@ document.addEventListener('DOMContentLoaded', function () {
     // renderList() é chamado pela função de sincronização do Firebase quando os dados são carregados inicialmente e em cada mudança.
 
 });
-
 
