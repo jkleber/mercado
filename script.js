@@ -51,37 +51,43 @@ document.addEventListener('DOMContentLoaded', function () {
     // Função para enviar alterações para a planilha
     async function updateShoppingList(itemData, action) {
         try {
+            // Realiza a requisição OPTIONS para o preflight
+            await fetch(APPS_SCRIPT_URL, {
+                method: 'OPTIONS',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+    
             const response = await fetch(APPS_SCRIPT_URL, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    action: action, // 'add', 'update', 'delete', 'clearBought', 'clearAll'
-                    item: itemData // Dados do item (pode ser nulo para clear actions)
+                    action: action,
+                    item: itemData
                 })
             });
-
+    
             if (!response.ok) {
                 throw new Error(`Erro HTTP: ${response.status}`);
             }
-
+    
             const result = await response.json();
             console.log('Resposta do Apps Script:', result);
-
+    
             if (result.result === 'success') {
-                 // Após uma operação bem-sucedida, recarregue a lista para sincronizar
-                 fetchShoppingList();
+                fetchShoppingList();
             } else {
-                 console.error('Erro na operação:', result.message);
-                 alert('Ocorreu um erro ao salvar a alteração: ' + result.message);
-                 fetchShoppingList(); // Tenta recarregar para ver o estado atual
+                console.error('Erro na operação:', result.message);
+                alert('Ocorreu um erro ao salvar a alteração: ' + result.message);
+                fetchShoppingList();
             }
-
         } catch (error) {
             console.error('Erro ao enviar dados para o Apps Script:', error);
-             alert('Ocorreu um erro de conexão com o servidor. Verifique sua internet e o URL do script.');
-             fetchShoppingList(); // Tenta recarregar para ver o estado atual
+            alert('Erro de conexão com o servidor. Verifique sua internet e o URL do script.');
+            fetchShoppingList();
         }
     }
 
