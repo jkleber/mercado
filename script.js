@@ -1302,3 +1302,4 @@ document.addEventListener('DOMContentLoaded', function () {
     // renderList() é chamado pela função de sincronização do Firebase quando os dados são carregados inicialmente e em cada mudança.
 
 });
+
