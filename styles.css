@@ -4,17 +4,18 @@
 :root {
     --primary-color: #4a90e2;
     --primary-gradient: linear-gradient(45deg, #4a90e2, #357ABD);
-    --secondary-color: #50e3c2;
+    --secondary-color: #50e3c2; /* Ainda pode ser usado para outros elementos se desejar */
     --background-color: #f5f7fa;
     --text-color: #333;
     --shadow-color: rgba(0, 0, 0, 0.15);
     --danger-color: #dc3545;
     --warning-color: #ffc107;
     --success-color: #28a745;
+    --edit-color: #007bff; 
+    --delete-color: #dc3545;
     --border-radius: 12px;
     --transition-speed: 0.3s;
     --toast-z-index: 1200;
-    --animation-duration: 0.4s;
 }
 
 /* Body and container */
@@ -22,7 +23,7 @@ body {
     background-color: var(--background-color);
     color: var(--text-color);
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    padding-top: 70px; /* space for fixed navbar */
+    padding-top: 70px; 
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
@@ -37,7 +38,6 @@ body {
 .navbar {
     background: var(--primary-gradient);
     box-shadow: 0 4px 8px var(--shadow-color);
-    /* Removido backdrop-filter pois pode causar problemas de performance */
 }
 
 .navbar-brand {
@@ -48,12 +48,11 @@ body {
 }
 
 .navbar-toggler {
-     border: none; /* Remove a borda do botão do hambúrguer */
+     border: none; 
 }
 
 .navbar-toggler-icon {
-     background-image: url("data:image/svg+xml,%c3%ab%c2%8c%c2%84"); /* Ícone hambúrguer branco */
-     filter: brightness(0) invert(1); /* Garante que o ícone seja branco */
+     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 1%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
 }
 
 /* Search bar in navbar */
@@ -84,7 +83,7 @@ body {
     border-radius: var(--border-radius);
     box-shadow: 0 8px 24px var(--shadow-color);
     padding: 1rem;
-    width: 85% !important; /* Mobile width */
+    width: 85% !important; 
 }
 
 .offcanvas-header {
@@ -97,7 +96,7 @@ body {
     color: var(--primary-color);
 }
 
-.offcanvas-body form { /* Estilo para os formulários dentro do offcanvas */
+.offcanvas-body form { 
     background: #f8f9fa;
     border-radius: var(--border-radius);
     padding: 1rem;
@@ -136,10 +135,16 @@ body {
     color: #555;
 }
 
-.input-group-text {
-    border-radius: var(--border-radius);
-    background: #f0f0f0;
-    border: 1px solid #ddd;
+.offcanvas-body .input-group .form-control {
+    border-top-right-radius: 0 !important; 
+    border-bottom-right-radius: 0 !important;
+}
+
+.offcanvas-body .input-group .input-group-text {
+    border-top-left-radius: 0 !important; 
+    border-bottom-left-radius: 0 !important;
+    background-color: #e9ecef; 
+    border-left: 0; 
 }
 
 /* Buttons */
@@ -165,67 +170,6 @@ body {
     transform: translateY(0);
 }
 
-.btn-secondary {
-    background: #6c757d;
-    border: none;
-}
-
-.btn-secondary:hover {
-    background: #5a6268;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
-}
-
-.btn-secondary:active {
-    transform: translateY(0);
-}
-
-.btn-warning {
-    background: var(--warning-color);
-    border: none;
-    color: #212529;
-}
-
-.btn-warning:hover {
-    background: #e0a800;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(255, 193, 7, 0.3);
-}
-
-.btn-warning:active {
-    transform: translateY(0);
-}
-
-.btn-danger {
-    background: var(--danger-color);
-    border: none;
-}
-
-.btn-danger:hover {
-    background: #c82333;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
-}
-
-.btn-danger:active {
-    transform: translateY(0);
-}
-
-.btn-icon {
-    background: none;
-    border: none;
-    padding: 0.25rem;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all var(--transition-speed);
-}
-
-.btn-icon:hover {
-    background: #f0f0f0;
-}
-
 /* Floating Action Button (FAB) */
 #fabAddItem {
     position: fixed;
@@ -234,29 +178,39 @@ body {
     width: 60px;
     height: 60px;
     border-radius: 50%;
-    background: var(--primary-gradient);
+    background: var(--primary-gradient); /* Cor de fundo PADRÃO E CONSTANTE */
     color: white;
-    font-size: 1.5rem;
+    font-size: 1.5rem; 
     display: flex;
     align-items: center;
     justify-content: center;
     box-shadow: 0 8px 20px var(--shadow-color);
     cursor: pointer;
     z-index: 1100;
-    transition: all var(--transition-speed);
-    border: none; /* Remove a borda padrão do botão */
+    /* Apenas transição para transform e box-shadow, não mais background-color */
+    transition: transform var(--transition-speed), box-shadow var(--transition-speed); 
+    border: none; 
 }
 
+/* Hover no FAB (sem mudança de cor de fundo) */
 #fabAddItem:hover {
-    background: var(--secondary-color);
+    transform: scale(1.1); /* Feedback de hover com scale */
     box-shadow: 0 12px 30px var(--shadow-color);
-    color: white;
-    transform: scale(1.1) rotate(90deg);
 }
 
-#fabAddItem:active {
-    transform: scale(1);
+#fabAddItem:active { 
+    transform: scale(0.95); /* Feedback de clique */
 }
+
+/* A classe .fab-active não é mais usada para mudar a cor de fundo, então essas regras são removidas ou comentadas */
+/*
+#fabAddItem.fab-active { 
+    background: var(--secondary-color); 
+}
+#fabAddItem.fab-active:hover {
+    transform: scale(1.05); 
+}
+*/
 
 /* Filter controls */
 .filter-controls {
@@ -306,139 +260,180 @@ body {
     margin: 0;
 }
 
+.category-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1.25rem;
+    background: var(--primary-gradient);
+    color: white;
+    font-weight: bold;
+    border-radius: var(--border-radius);
+    margin-bottom: 0.75rem; 
+    box-shadow: 0 2px 8px var(--shadow-color);
+    font-size: 1.1rem; 
+}
+
+.category-header-left {
+    display: flex;
+    align-items: center;
+}
+
+.category-header .category-icon { 
+    font-size: 1.5rem; 
+    margin-right: 0.75rem;
+}
+
+.category-header .category-name { 
+    margin: 0; 
+}
+
+.category-header .item-count { 
+    margin-left: 0.75rem;
+    background-color: rgba(255, 255, 255, 0.2); 
+    color: white;
+    padding: 0.2rem 0.5rem;
+    border-radius: var(--border-radius);
+    font-size: 0.85rem;
+}
+
 .list-group-item {
     border-radius: var(--border-radius);
     margin-bottom: 0.75rem;
     box-shadow: 0 2px 8px var(--shadow-color);
-    transition: all var(--transition-speed);
-    display: flex; /* Usar flexbox para alinhar conteúdo */
-    justify-content: space-between; /* Espaço entre conteúdo e botões */
-    align-items: center; /* Alinhamento vertical */
-    padding: 1rem 1.5rem; /* Padding interno */
-    position: relative; /* Para posicionamento de elementos absolutos */
-    overflow: hidden; /* Para esconder ações de swipe */
+    transition: background-color var(--transition-speed), box-shadow var(--transition-speed);
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    padding: 0.75rem 1rem; 
+    position: relative; 
+    overflow: visible; 
 }
 
-.list-group-item.active {
-    background: var(--primary-gradient);
-    border: none;
-    color: white;
-    font-weight: 700;
-    font-size: 1.2rem;
+.list-group-item:hover { 
+    background: #e9f2fa; 
 }
 
-.list-group-item:hover:not(.active) { /* Hover exceto no cabeçalho da categoria */
-    background: #e6f0ff;
-    cursor: pointer;
-}
-
-.list-item-content { /* Div para agrupar checkbox, nome e quantidade */
+.item-content { 
     display: flex;
     align-items: center;
-    flex-grow: 1; /* Permite que o conteúdo ocupe espaço disponível */
-    margin-right: 1rem; /* Espaço entre o conteúdo e os botões de ação */
+    flex-grow: 1; 
+    margin-right: 0.5rem; 
+    cursor: pointer; 
 }
 
 .item-name {
-    margin-left: 1rem; /* Espaço entre o checkbox e o nome */
     font-weight: 500;
     transition: all var(--transition-speed);
+    flex-grow: 1; 
+    word-break: break-word; 
+    margin-left: 0.5rem; 
+}
+
+.item-actions { 
+    display: flex;
+    align-items: center;
+    gap: 0.5rem; 
+    flex-shrink: 0; 
 }
 
 .item-quantity {
-    margin-left: 0.5rem;
-    color: #777;
-    font-size: 0.9rem;
+    color: #555; 
+    font-size: 0.85rem; 
+    white-space: nowrap; 
+    background-color: #e9ecef; 
+    padding: 0.2em 0.5em;
+    border-radius: var(--border-radius);
 }
 
 .form-check-input {
-    width: 1.25rem;
-    height: 1.25rem;
+    width: 1.35rem; 
+    height: 1.35rem;
     cursor: pointer;
     border-radius: 50%;
-    border: 2px solid #ddd;
+    border: 2px solid #b0bec5; 
     transition: all var(--transition-speed);
+    flex-shrink: 0; 
+    margin-right: 0.5rem; 
+}
+.form-check-input:focus {
+    box-shadow: 0 0 0 0.25rem rgba(74, 144, 226, 0.25); 
 }
 
 .form-check-input:checked {
     background-color: var(--primary-color);
     border-color: var(--primary-color);
 }
+.form-check-input:checked::before { 
+    content: '\F26E'; 
+    font-family: 'bootstrap-icons';
+    color: white;
+    font-size: 0.8rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+}
 
-/* Estilo para itens comprados */
 .list-group-item.bought .item-name {
     text-decoration: line-through;
-    color: #999;
+    color: #868e96; 
 }
 
-.list-group-item.bought .form-check-input {
-    background-color: var(--primary-color);
-    border-color: var(--primary-color);
-}
-
-/* Botão de remover item */
-.btn-item-remove {
+.btn-delete, 
+.btn-category-delete,
+.btn-category-edit {
     background: none;
     border: none;
-    color: #ccc;
-    font-size: 1.25rem;
-    padding: 0.25rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all var(--transition-speed);
-    cursor: pointer;
+    padding: 0.3rem; 
     border-radius: 50%;
-    width: 32px;
-    height: 32px;
-}
-
-.btn-item-remove:hover {
-    color: var(--danger-color);
-    background: #ffe6e6;
-}
-
-/* Swipe actions */
-.swipe-actions {
-    position: absolute;
-    right: 0;
-    top: 0;
-    height: 100%;
-    display: flex;
-    transform: translateX(100%);
-    transition: transform var(--transition-speed);
-}
-
-.list-group-item.swiped .swipe-actions {
-    transform: translateX(0);
-}
-
-.swipe-action {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 70px;
-    height: 100%;
-    color: white;
-    font-size: 1.5rem;
+    transition: background-color var(--transition-speed), color var(--transition-speed); 
+    cursor: pointer;
+    width: 36px; 
+    height: 36px; 
 }
 
-.swipe-action-check {
-    background: var(--success-color);
+.btn-delete i, 
+.btn-category-delete i {
+    color: var(--delete-color); 
+    font-size: 1.1rem; 
 }
 
-.swipe-action-delete {
-    background: var(--danger-color);
+.btn-category-edit i {
+    color: var(--edit-color); 
+    font-size: 1.1rem; 
+}
+
+.btn-delete:hover,
+.btn-category-delete:hover {
+    background-color: rgba(220, 53, 69, 0.1); 
+}
+.btn-delete:hover i,
+.btn-category-delete:hover i {
+    color: #b02a37; 
+}
+
+.btn-category-edit:hover {
+    background-color: rgba(0, 123, 255, 0.1); 
+}
+.btn-category-edit:hover i {
+    color: #0056b3; 
 }
 
 /* Emoji picker */
 #emojiPicker, #editEmojiPicker {
     display: grid;
-    grid-template-columns: repeat(8, 1fr);
+    grid-template-columns: repeat(auto-fill, minmax(2.5rem, 1fr)); 
     gap: 0.5rem;
     max-height: 200px;
     overflow-y: auto;
     padding: 0.5rem;
+    border: 1px solid #ddd; 
+    border-radius: var(--border-radius);
 }
 
 #emojiPicker span, #editEmojiPicker span {
@@ -447,15 +442,15 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 2rem;
-    height: 2rem;
+    width: 2.5rem; 
+    height: 2.5rem; 
     border-radius: 50%;
     transition: all var(--transition-speed);
 }
 
 #emojiPicker span:hover, #editEmojiPicker span:hover {
-    transform: scale(1.2); /* Aumenta um pouco no hover */
-    background: none; /* Remove background do hover, já que o scale já é um feedback */
+    transform: scale(1.15); 
+    background-color: #e9ecef; 
 }
 
 /* Modal para edição de categoria */
@@ -480,40 +475,18 @@ body {
 }
 
 /* Toast notifications */
-.toast-container {
-    position: fixed;
-    top: 80px;
-    right: 20px;
-    z-index: var(--toast-z-index);
-}
-
-.toast {
-    background: white;
-    border-radius: var(--border-radius);
-    box-shadow: 0 4px 12px var(--shadow-color);
-    margin-bottom: 10px;
-    min-width: 250px;
-    animation: toastFadeIn var(--animation-duration) ease-in-out;
-}
-
-@keyframes toastFadeIn {
-    from {
-        opacity: 0;
-        transform: translateX(50px);
-    }
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
-}
-
 .toast-header {
-    border-bottom: 1px solid #ddd;
-    padding: 0.5rem 1rem;
+    color: #fff;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
 }
+.toast.toast-success .toast-header { background-color: var(--success-color); }
+.toast.toast-info .toast-header { background-color: var(--primary-color); }
+.toast.toast-warning .toast-header { background-color: var(--warning-color); color: var(--text-color); }
+.toast.toast-warning .toast-header .btn-close { filter: invert(0) grayscale(100%) brightness(50%); } 
+.toast.toast-danger .toast-header { background-color: var(--danger-color); }
 
 .toast-body {
-    padding: 1rem;
+    color: var(--text-color);
 }
 
 /* Gerenciamento de categorias */
@@ -521,21 +494,21 @@ body {
     list-style: none;
     padding: 0;
     margin: 0;
-    max-height: 300px;
+    max-height: 280px; 
     overflow-y: auto;
 }
 
 .category-item {
     display: flex;
     align-items: center;
-    padding: 0.75rem;
+    padding: 0.6rem 0.75rem; 
     margin-bottom: 0.5rem;
     background: white;
     border-radius: var(--border-radius);
     box-shadow: 0 2px 4px var(--shadow-color);
-    transition: all var(--transition-speed);
-    max-width: 100%; /* Garante que não ultrapasse o frame */
-    overflow: hidden; /* Esconde conteúdo que ultrapassa */
+    transition: box-shadow var(--transition-speed);
+    max-width: 100%; 
+    overflow: hidden; 
 }
 
 .category-item:hover {
@@ -544,104 +517,73 @@ body {
 
 .drag-handle {
     cursor: grab;
-    margin-right: 0.5rem;
-    color: #aaa;
-    flex-shrink: 0; /* Impede que o ícone encolha */
+    margin-right: 0.75rem; 
+    color: #90a4ae; 
+    flex-shrink: 0; 
+    font-size: 1.2rem; 
+}
+.drag-handle:active {
+    cursor: grabbing;
 }
 
 .category-info {
     display: flex;
     align-items: center;
     flex-grow: 1;
-    min-width: 0; /* Permite que o conteúdo seja truncado se necessário */
-    overflow: hidden; /* Esconde conteúdo que ultrapassa */
+    min-width: 0; 
+    overflow: hidden; 
 }
 
-.category-icon {
-    font-size: 1.5rem;
-    margin-right: 0.75rem;
-    flex-shrink: 0; /* Impede que o ícone encolha */
+.category-info .category-icon { 
+    font-size: 1.4rem; 
+    margin-right: 0.6rem; 
+    flex-shrink: 0; 
 }
 
-.category-name {
+.category-info .category-name { 
     font-weight: 500;
-    white-space: nowrap; /* Evita quebra de linha */
-    overflow: hidden; /* Esconde texto que ultrapassa */
-    text-overflow: ellipsis; /* Adiciona reticências */
-    max-width: 60%; /* Limita a largura do nome */
-}
-
-.category-count {
-    margin-left: 0.5rem;
-    background: #f0f0f0;
-    color: #666;
-    border-radius: 50%;
-    width: 24px;
-    height: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.8rem;
-    flex-shrink: 0; /* Impede que o contador encolha */
+    white-space: nowrap; 
+    overflow: hidden; 
+    text-overflow: ellipsis; 
+    margin: 0; 
+    font-size: 0.95rem; 
 }
 
 .category-item-actions {
     display: flex;
-    gap: 0.5rem;
-    margin-left: auto; /* Empurra para a direita */
-    flex-shrink: 0; /* Impede que os botões encolham */
-}
-
-.btn-category-edit, .btn-category-delete {
-    background: none;
-    border: none;
-    padding: 0.25rem;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all var(--transition-speed);
-}
-
-.btn-category-edit:hover {
-    background: #e6f0ff;
-    color: var(--primary-color);
-}
-
-.btn-category-delete:hover {
-    background: #ffe6e6;
-    color: var(--danger-color);
+    gap: 0.3rem; 
+    margin-left: auto; 
+    flex-shrink: 0; 
 }
 
 .category-item.dragging {
-    opacity: 0.5;
-    background: #e6f0ff;
-}
-
-/* Animações desativadas conforme solicitado pelo usuário */
-.fade-in, .slide-in, .pulse, .item-added {
-    /* Animações removidas */
+    opacity: 0.7; 
+    background: #e0eafc; 
+    box-shadow: 0 4px 12px var(--shadow-color); 
 }
 
 /* Responsive adjustments */
-@media (min-width: 992px) {
+@media (min-width: 768px) { 
     .offcanvas {
-        width: 40% !important; /* Desktop width */
+        width: 400px !important; 
     }
 }
 
 @media (max-width: 767.98px) {
     .container {
-        padding: 0.5rem;
+        padding: 0.75rem; 
     }
     
     .list-group-item {
-        padding: 0.75rem 1rem;
+        padding: 0.6rem 0.8rem; 
     }
     
     .filter-controls {
         flex-direction: column;
-        align-items: flex-start;
+        align-items: stretch; 
+    }
+    .filter-controls > div:first-child { 
+        margin-bottom: 0.5rem;
     }
     
     .filter-options {
@@ -653,37 +595,26 @@ body {
     .filter-btn {
         flex: 1;
         text-align: center;
+        font-size: 0.8rem; 
+        padding: 0.3rem 0.5rem; 
     }
     
     #fabAddItem {
-        bottom: 1rem;
-        right: 1rem;
-        width: 50px;
-        height: 50px;
+        bottom: 1.5rem; 
+        right: 1.5rem; 
+        width: 56px; 
+        height: 56px;
+        font-size: 1.4rem; 
+    }
+    .offcanvas { 
+        width: 88% !important; 
+    }
+    .navbar-brand {
+        font-size: 1.5rem; 
     }
 }
 
-/* Correção para o botão do offcanvas */
 .navbar-toggler:focus {
     box-shadow: none;
-}
-
-.navbar-toggler[aria-expanded="false"] {
-    background: transparent;
-}
-
-.navbar-toggler[aria-expanded="true"] {
-    background: rgba(255, 255, 255, 0.2);
-}
-
-/* Ajuste para o botão de remover item */
-.btn-item-remove {
-    color: #aaa;
-    margin-right: 8px;
-}
-
-/* Ajuste para o ícone de lixeira */
-.btn-item-remove i {
-    font-size: 1.2rem;
 }
 

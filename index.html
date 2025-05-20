@@ -27,11 +27,10 @@
             <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Fechar"></button>
         </div>
         <div class="offcanvas-body">
-            <!-- Campo de busca para mobile -->
             <div class="mb-4 d-md-none">
                 <div class="input-group">
-                    <span class="input-group-text"><i class="bi bi-search"></i></span>
                     <input type="text" id="searchInputMobile" class="form-control" placeholder="Buscar item...">
+                    <span class="input-group-text"><i class="bi bi-search"></i></span> 
                 </div>
             </div>
 
@@ -65,7 +64,7 @@
                 <div class="mb-3">
                     <label for="newCategoryIconInput" class="form-label">Ícone (Emoji)</label>
                     <div class="input-group">
-                        <input type="text" id="newCategoryIconInput" class="form-control" placeholder="Ex: 🍎" />
+                        <input type="text" id="newCategoryIconInput" class="form-control" placeholder="Ex: 🍎" readonly />
                         <button class="btn btn-outline-secondary" type="button" id="emojiPickerButton">😊</button>
                     </div>
                     <div id="emojiPicker" class="d-none mt-2 border p-2 rounded"></div>
@@ -90,7 +89,6 @@
     </div>
 
     <div class="container my-4">
-        <!-- Filtros -->
         <div class="filter-controls mb-3">
             <div>
                 <span class="filter-label">Filtrar:</span>
@@ -108,15 +106,13 @@
     </div>
 
     <button id="fabAddItem" class="btn btn-gradient-fab" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasMenu" aria-controls="offcanvasMenu">
-        <i class="bi bi-plus"></i>
+        <i class="bi bi-plus-lg"></i> <!-- SUGESTÃO: Usar bi-plus-lg para o ícone inicial -->
     </button>
 
-    <!-- Toast Container para notificações -->
-    <div class="toast-container">
+    <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1200; margin-top: 70px;">
         <!-- Toasts serão adicionados dinamicamente -->
     </div>
 
-    <!-- Modal para Editar Categoria -->
     <div class="modal fade" id="editCategoryModal" tabindex="-1" aria-labelledby="editCategoryModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -135,7 +131,7 @@
                         <div class="mb-3">
                             <label for="editCategoryIcon" class="form-label">Ícone (Emoji)</label>
                             <div class="input-group">
-                                <input type="text" class="form-control" id="editCategoryIcon">
+                                <input type="text" class="form-control" id="editCategoryIcon" readonly>
                                 <button class="btn btn-outline-secondary" type="button" id="editEmojiPickerButton">😊</button>
                             </div>
                             <div id="editEmojiPicker" class="d-none mt-2 border p-2 rounded"></div>
@@ -150,7 +146,6 @@
         </div>
     </div>
 
-    <!-- Modal de Confirmação para Excluir Categoria -->
     <div class="modal fade" id="deleteCategoryModal" tabindex="-1" aria-labelledby="deleteCategoryModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -194,29 +189,21 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
     <script>
-      // Suas configurações do projeto Firebase (copiadas do Console do Firebase)
       const firebaseConfig = {
         apiKey: "AIzaSyAQN4078FDvZj2Y2_EvS8yXVSff8rBPOkg", // Substitua pela sua API Key real
         authDomain: "listacomprasapp-f16cc.firebaseapp.com",
-        databaseURL: "https://listacomprasapp-f16cc-default-rtdb.firebaseio.com", // URL do seu Realtime Database
+        databaseURL: "https://listacomprasapp-f16cc-default-rtdb.firebaseio.com", 
         projectId: "listacomprasapp-f16cc",
         storageBucket: "listacomprasapp-f16cc.firebasestorage.app",
         messagingSenderId: "656637499111",
         appId: "1:656637499111:web:be0a1afafa113828817442"
       };
 
-      // Inicializa o Firebase
       const app = firebase.initializeApp(firebaseConfig);
-
-      // Obtém uma referência para o banco de dados
       const database = firebase.database();
-
-      // Obtém uma referência para o nó 'items' no seu banco de dados
       const itemsRef = database.ref('items');
-      // Obtém uma referência para o nó 'categories' no seu banco de dados
-      const categoriesRef = database.ref('categories'); // NOVA REFERÊNCIA
-      // Obtém uma referência para o nó 'categoryOrder' (NOVO)
-      const categoryOrderRef = database.ref('categoryOrder'); // NOVA REFERÊNCIA
+      const categoriesRef = database.ref('categories'); 
+      const categoryOrderRef = database.ref('categoryOrder'); 
     </script>
 
     <script src="script.js"></script>
@@ -225,3 +212,4 @@
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 </body>
 </html>
+
