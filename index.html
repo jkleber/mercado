@@ -126,6 +126,7 @@
                 </div>
                 <div class="modal-body">
                     <form id="editCategoryForm">
+                        <input type="hidden" id="editCategoryId">
                         <input type="hidden" id="editCategoryOldName">
                         <div class="mb-3">
                             <label for="editCategoryName" class="form-label">Nome da Categoria</label>
@@ -158,6 +159,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
                 </div>
                 <div class="modal-body">
+                    <input type="hidden" id="deleteCategoryIdField">
                     <p>Tem certeza que deseja excluir a categoria "<span id="deleteCategoryName"></span>"?</p>
                     <div class="mb-3">
                         <div class="form-check">
@@ -194,7 +196,7 @@
     <script>
       // Suas configurações do projeto Firebase (copiadas do Console do Firebase)
       const firebaseConfig = {
-        apiKey: "AIzaSyAQN4078FDvZj2Y2_EvS8yXVSff8rBPOkg",
+        apiKey: "AIzaSyAQN4078FDvZj2Y2_EvS8yXVSff8rBPOkg", // Substitua pela sua API Key real
         authDomain: "listacomprasapp-f16cc.firebaseapp.com",
         databaseURL: "https://listacomprasapp-f16cc-default-rtdb.firebaseio.com", // URL do seu Realtime Database
         projectId: "listacomprasapp-f16cc",
@@ -211,6 +213,8 @@
 
       // Obtém uma referência para o nó 'items' no seu banco de dados
       const itemsRef = database.ref('items');
+      // Obtém uma referência para o nó 'categories' no seu banco de dados
+      const categoriesRef = database.ref('categories'); // NOVA REFERÊNCIA
     </script>
 
     <script src="script.js"></script>
@@ -219,5 +223,3 @@
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 </body>
 </html>
-
-

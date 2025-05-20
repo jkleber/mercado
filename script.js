@@ -2,40 +2,38 @@
 // Certifique-se de que o Firebase SDK (firebase-app.js, firebase-database.js v8.x.x)
 // e suas configurações (firebaseConfig) estejam incluídos no seu arquivo index.html
 // em tags <script> ANTES deste script.
-// O index.html deve inicializar o app Firebase e criar as referências 'database' e 'itemsRef'.
+// O index.html deve inicializar o app Firebase e criar as referências 'database', 'itemsRef' e 'categoriesRef'.
 
 document.addEventListener('DOMContentLoaded', function () {
     // --- Referências aos Elementos HTML ---
-    const fabAddItemButton = document.getElementById('fabAddItem'); // FAB que abre o offcanvas
-    const addItemButton = document.getElementById('addItemButton'); // Botão Adicionar Item no offcanvas
-    const addCategoryButton = document.getElementById('addCategoryButton'); // Botão Adicionar Categoria no offcanvas
+    const fabAddItemButton = document.getElementById('fabAddItem');
+    const addItemButton = document.getElementById('addItemButton');
+    const addCategoryButton = document.getElementById('addCategoryButton');
     const itemInput = document.getElementById('itemInput');
-    const itemQuantityInput = document.getElementById('itemQuantity'); // Input de quantidade
+    const itemQuantityInput = document.getElementById('itemQuantity');
     const categorySelect = document.getElementById('categorySelect');
     const newCategoryInput = document.getElementById('newCategoryInput');
     const newCategoryIconInput = document.getElementById('newCategoryIconInput');
     const emojiPickerButton = document.getElementById('emojiPickerButton');
     const emojiPicker = document.getElementById('emojiPicker');
     const shoppingList = document.getElementById('shoppingList');
-    const clearBoughtButton = document.getElementById('clearBoughtButton'); // Botão Limpar Comprados
-    const clearAllButton = document.getElementById('clearAllButton'); // Botão Limpar Tudo
-    const categoryManagementList = document.getElementById('categoryManagementList'); // Lista de gerenciamento de categorias
-    const searchInput = document.getElementById('searchInput'); // Campo de busca desktop
-    const searchInputMobile = document.getElementById('searchInputMobile'); // Campo de busca mobile
-    const filterButtons = document.querySelectorAll('.filter-btn'); // Botões de filtro
+    const categoryManagementList = document.getElementById('categoryManagementList');
+    const searchInput = document.getElementById('searchInput');
+    const searchInputMobile = document.getElementById('searchInputMobile');
+    const filterButtons = document.querySelectorAll('.filter-btn');
     
-    // Elementos do modal de edição de categoria
     const editCategoryModal = document.getElementById('editCategoryModal');
     const editCategoryForm = document.getElementById('editCategoryForm');
-    const editCategoryOldName = document.getElementById('editCategoryOldName');
+    const editCategoryId = document.getElementById('editCategoryId'); // Campo oculto para ID
+    const editCategoryOldName = document.getElementById('editCategoryOldName'); // Campo oculto para nome antigo
     const editCategoryName = document.getElementById('editCategoryName');
     const editCategoryIcon = document.getElementById('editCategoryIcon');
     const editEmojiPickerButton = document.getElementById('editEmojiPickerButton');
     const editEmojiPicker = document.getElementById('editEmojiPicker');
     const saveCategoryChanges = document.getElementById('saveCategoryChanges');
     
-    // Elementos do modal de exclusão de categoria
     const deleteCategoryModal = document.getElementById('deleteCategoryModal');
+    const deleteCategoryIdField = document.getElementById('deleteCategoryIdField'); // Campo oculto para ID
     const deleteCategoryName = document.getElementById('deleteCategoryName');
     const deleteOptionRemove = document.getElementById('deleteOptionRemove');
     const deleteOptionMove = document.getElementById('deleteOptionMove');
@@ -43,444 +41,265 @@ document.addEventListener('DOMContentLoaded', function () {
     const moveToSelect = document.getElementById('moveToSelect');
     const confirmDeleteCategory = document.getElementById('confirmDeleteCategory');
     
-    // Inicializa os modais do Bootstrap
     const editCategoryModalInstance = new bootstrap.Modal(editCategoryModal);
     const deleteCategoryModalInstance = new bootstrap.Modal(deleteCategoryModal);
 
     // --- Estado da Aplicação ---
-    // As categorias são mantidas localmente por enquanto.
-    let categories = [];
-    // Os itens serão carregados e sincronizados automaticamente pelo Firebase.
-    let items = [];
-    // Estado atual do filtro
+    let categories = []; // Agora será preenchido pelo Firebase
+    let items = []; // Preenchido pelo Firebase
     let currentFilter = 'all';
-    // Termo de busca atual
     let searchTerm = '';
-    // Instância do Sortable para reordenação de categorias
     let sortableInstance = null;
 
-    // Lista de emojis para o picker
-    const emojis = ['🍎', '🥦', '🥛', '🍖', '🍹', '🍞', '🍗', '🍇', '🍉', '🍌', '🍒', '🥕', '🥩', '🍤', '🍰', '🍪', '🍕', '🌽', '🍅', '🥥', '🛒', '🛍️', '📋', '📍', '🧀', '🥚', '🥓', '🥖', '🥐', '🧈', '🧂', '🥫', '🥔', '🍠', '🍯', '🥜', '🫘', '🍝', '🥞', '🧊', '🧃', '🧴', '🧻', '🧼', '🧹', '🧺', '🪣', '🧷', '🪒', '🪥', '🧸', '📱', '💻', '🔋', '💡', '🧾']; // Emojis relacionados a produtos de supermercado
+    const emojis = ['🍎', '🥦', '🥛', '🍖', '🍹', '🍞', '🍗', '🍇', '🍉', '🍌', '🍒', '🥕', '🥩', '🍤', '🍰', '🍪', '🍕', '🌽', '🍅', '🥥', '🛒', '🛍️', '📋', '📍', '🧀', '🥚', '🥓', '🥖', '🥐', '🧈', '🧂', '🥫', '🥔', '🍠', '🍯', '🥜', '🫘', '🍝', '🥞', '🧊', '🧃', '🧴', '🧻', '🧼', '🧹', '🧺', '🪣', '🧷', '🪒', '🪥', '🧸', '📱', '💻', '🔋', '💡', '🧾'];
 
     // --- Inicialização e Conexão com Firebase ---
-
-    // Verifica se o Firebase SDK e as referências foram carregados no index.html
-    // 'database' e 'itemsRef' devem ser definidos no index.html antes deste script.
-    if (typeof firebase === 'undefined' || typeof database === 'undefined' || typeof itemsRef === 'undefined') {
+    if (typeof firebase === 'undefined' || typeof database === 'undefined' || typeof itemsRef === 'undefined' || typeof categoriesRef === 'undefined') {
         console.error("Firebase SDK ou referências de banco de dados não carregadas corretamente no index.html.");
         showToast("Erro", "Erro na configuração do Firebase. Verifique o arquivo index.html.", "danger");
-        return; // Interrompe a execução se o Firebase não estiver pronto
+        return;
     }
-
-    // 'itemsRef' é a referência ao nó 'items' no seu Realtime Database,
-    // definida no script do index.html após inicializar o Firebase.
-    // Exemplo de como seria definido no index.html:
-    // const database = firebase.database();
-    // const itemsRef = database.ref('items');
-
 
     // --- Sincronização em Tempo Real com Firebase ---
 
-    // Ouve mudanças nos dados no nó 'items' em tempo real (Sintaxe v8)
-    // Esta função é acionada na carga inicial e sempre que os dados mudam no Firebase.
-    itemsRef.on('value', (snapshot) => {
-        const data = snapshot.val(); // Obtém os dados do nó 'items' como um objeto
-        items = []; // Limpa a lista local para recarregar
-
+    // Ouve mudanças nas categorias
+    categoriesRef.on('value', (snapshot) => {
+        const data = snapshot.val();
+        categories = [];
         if (data) {
-            // O Firebase retorna os dados como um objeto de objetos (chave: valor).
-            // Precisamos convertê-lo de volta para um array de objetos para usar na nossa lista.
-            // As chaves do objeto (geradas pelo Firebase push) serão usadas como IDs únicos.
             Object.keys(data).forEach(key => {
-                items.push({
-                    id: key, // Usa a chave do Firebase como ID único do item
-                    ...data[key] // Adiciona as outras propriedades do item (Nome, Quantidade, Categoria, Comprado)
+                categories.push({
+                    id: key,
+                    ...data[key] // name, icon
                 });
             });
         }
+        // Manter a ordem local se já houver uma definida pelo sortable
+        // Esta é uma simplificação. Para persistência de ordem real, um campo 'orderIndex' seria necessário.
+        // Por ora, a reordenação manual via SortableJS afetará a 'categories' array local.
+        // Se categories foi reordenado localmente, tentamos manter essa ordem.
+        const localOrder = categories.map(c => c.id);
+        categories.sort((a, b) => {
+            const indexA = localOrder.indexOf(a.id);
+            const indexB = localOrder.indexOf(b.id);
+            if (indexA !== -1 && indexB !== -1) {
+                return indexA - indexB;
+            }
+            return 0; // ou outra lógica de ordenação padrão
+        });
 
-        console.log('Dados do Firebase recebidos:', items);
-        renderList(); // Renderiza a lista na UI com os dados mais recentes
+        console.log('Categorias do Firebase recebidas:', categories);
+        renderCategorySelect();
+        renderCategoryManagement();
+        renderList(); // Re-renderiza a lista de itens pois os ícones das categorias podem ter mudado
+    }, (error) => {
+        console.error("Erro ao sincronizar categorias com Firebase:", error);
+        showToast("Erro", "Erro ao carregar categorias.", "danger");
+    });
+
+    // Ouve mudanças nos itens
+    itemsRef.on('value', (snapshot) => {
+        const data = snapshot.val();
+        items = [];
+        if (data) {
+            Object.keys(data).forEach(key => {
+                items.push({
+                    id: key,
+                    ...data[key]
+                });
+            });
+        }
+        console.log('Itens do Firebase recebidos:', items);
+        renderList();
         renderCategoryManagement(); // Atualiza contadores de itens por categoria
     }, (error) => {
-        // Lida com erros de sincronização
-        console.error("Erro ao sincronizar com Firebase:", error);
-        showToast("Erro", "Erro ao carregar ou sincronizar a lista de compras.", "danger");
+        console.error("Erro ao sincronizar itens com Firebase:", error);
+        showToast("Erro", "Erro ao carregar lista de compras.", "danger");
     });
 
 
-    // --- Funções de Interação com Firebase (Sintaxe v8) ---
-
-    /**
-     * Adiciona um novo item ao Firebase Realtime Database.
-     * @param {object} itemData - Objeto contendo os dados do item (Nome, Quantidade, Categoria, Comprado).
-     */
+    // --- Funções de Interação com Firebase (Itens) ---
     async function addItemToFirebase(itemData) {
-        if (typeof itemsRef === 'undefined') {
-             console.error("Referência do Firebase itemsRef não definida.");
-             showToast("Erro", "Erro interno: Firebase não configurado corretamente.", "danger");
-             return;
-        }
         try {
-            // Sintaxe v8: itemsRef.push()
             const newItemRef = await itemsRef.push(itemData);
             console.log("Item adicionado ao Firebase com ID:", newItemRef.key);
             showToast("Sucesso", "Item adicionado à lista.", "success");
-            // A UI será atualizada automaticamente pela função itemsRef.on('value', ...)
         } catch (error) {
             console.error("Erro ao adicionar item ao Firebase:", error);
-            showToast("Erro", "Erro ao adicionar item à lista.", "danger");
+            showToast("Erro", "Erro ao adicionar item.", "danger");
         }
     }
 
-    /**
-     * Atualiza dados de um item existente no Firebase.
-     * @param {string} itemId - O ID (chave) do item no Firebase.
-     * @param {object} updatedData - Objeto contendo os dados a serem atualizados (ex: { Comprado: true }).
-     */
     async function updateItemInFirebase(itemId, updatedData) {
-         if (typeof itemsRef === 'undefined') {
-             console.error("Referência do Firebase itemsRef não definida.");
-             showToast("Erro", "Erro interno: Firebase não configurado corretamente.", "danger");
-             return;
-        }
          try {
-             // Sintaxe v8: itemsRef.child(itemId).update()
              await itemsRef.child(itemId).update(updatedData);
              console.log("Item atualizado no Firebase com ID:", itemId);
-             // A UI será atualizada automaticamente pela função itemsRef.on('value', ...)
          } catch (error) {
              console.error("Erro ao atualizar item no Firebase:", error);
-             showToast("Erro", "Erro ao atualizar item na lista.", "danger");
+             showToast("Erro", "Erro ao atualizar item.", "danger");
          }
     }
 
-    /**
-     * Remove um item do Firebase.
-     * @param {string} itemId - O ID (chave) do item no Firebase.
-     */
     async function removeItemFromFirebase(itemId) {
-         if (typeof itemsRef === 'undefined') {
-             console.error("Referência do Firebase itemsRef não definida.");
-             showToast("Erro", "Erro interno: Firebase não configurado corretamente.", "danger");
-             return;
-        }
          try {
-             // Sintaxe v8: itemsRef.child(itemId).remove()
              await itemsRef.child(itemId).remove();
              console.log("Item removido do Firebase com ID:", itemId);
-             // A UI será atualizada automaticamente pela função itemsRef.on('value', ...)
+             showToast("Sucesso", "Item removido da lista.", "success");
          } catch (error) {
              console.error("Erro ao remover item do Firebase:", error);
-             showToast("Erro", "Erro ao remover item da lista.", "danger");
+             showToast("Erro", "Erro ao remover item.", "danger");
          }
     }
-
-    /**
-     * Remove todos os itens marcados como 'Comprado' do Firebase.
-     */
-    async function clearBoughtFromFirebase() {
-         if (typeof itemsRef === 'undefined') {
-             console.error("Referência do Firebase itemsRef não definida.");
-             showToast("Erro", "Erro interno: Firebase não configurado corretamente.", "danger");
-             return;
-        }
-         try {
-             // Para limpar comprados, precisamos iterar sobre os itens locais (que já estão sincronizados)
-             // e criar um objeto de atualizações para remover no Firebase.
-             const updates = {};
-             items.forEach(item => {
-                 if (item.Comprado) { // Verifica a propriedade 'Comprado' do item
-                     // Sintaxe v8: Definir como null no update remove o nó
-                     updates[item.id] = null;
-                 }
-             });
-
-             if (Object.keys(updates).length > 0) {
-                 // Sintaxe v8: itemsRef.update(updates) para atualizações em lote/remoções
-                 await itemsRef.update(updates);
-                 console.log("Itens comprados limpos do Firebase.");
-                 showToast("Sucesso", "Itens comprados removidos com sucesso.", "success");
-                  // A UI será atualizada automaticamente pela função itemsRef.on('value', ...)
-             } else {
-                 showToast("Informação", "Não há itens comprados para remover.", "info");
-             }
-
-         } catch (error) {
-             console.error("Erro ao limpar itens comprados do Firebase:", error);
-             showToast("Erro", "Erro ao limpar itens comprados.", "danger");
-         }
-    }
-
-     /**
-     * Remove todos os itens do Firebase.
-     */
-    async function clearAllFromFirebase() {
-         if (typeof itemsRef === 'undefined') {
-             console.error("Referência do Firebase itemsRef não definida.");
-             showToast("Erro", "Erro interno: Firebase não configurado corretamente.", "danger");
-             return;
-        }
-         try {
-             // Sintaxe v8: itemsRef.remove() remove todo o nó
-             await itemsRef.remove();
-             console.log("Todos os itens limpos do Firebase.");
-             showToast("Sucesso", "Lista de compras limpa com sucesso.", "success");
-             // A UI será atualizada automaticamente pela função itemsRef.on('value', ...)
-         } catch (error) {
-             console.error("Erro ao limpar todos os itens do Firebase:", error);
-             showToast("Erro", "Erro ao limpar a lista inteira.", "danger");
-         }
-    }
-
-    /**
-     * Atualiza a categoria de todos os itens que pertencem a uma categoria específica.
-     * @param {string} oldCategory - Nome da categoria antiga.
-     * @param {string} newCategory - Nome da nova categoria.
-     */
-    async function updateItemsCategory(oldCategory, newCategory) {
-        if (typeof itemsRef === 'undefined') {
-            console.error("Referência do Firebase itemsRef não definida.");
-            showToast("Erro", "Erro interno: Firebase não configurado corretamente.", "danger");
-            return;
-        }
+    
+    async function updateItemsCategory(oldCategoryName, newCategoryName) {
         try {
-            // Filtra os itens que pertencem à categoria antiga
-            const itemsToUpdate = items.filter(item => item.Categoria === oldCategory);
-            
+            const itemsToUpdate = items.filter(item => item.Categoria === oldCategoryName);
             if (itemsToUpdate.length === 0) {
-                console.log("Nenhum item encontrado na categoria:", oldCategory);
+                console.log("Nenhum item encontrado na categoria:", oldCategoryName);
                 return;
             }
-            
-            // Cria um objeto de atualizações em lote
             const updates = {};
             itemsToUpdate.forEach(item => {
-                updates[`${item.id}/Categoria`] = newCategory;
+                updates[`${item.id}/Categoria`] = newCategoryName;
             });
-            
-            // Atualiza todos os itens de uma vez
             await itemsRef.update(updates);
-            console.log(`Categoria atualizada de "${oldCategory}" para "${newCategory}" em ${itemsToUpdate.length} itens.`);
-            // A UI será atualizada automaticamente pela função itemsRef.on('value', ...)
+            console.log(`Categoria atualizada de "${oldCategoryName}" para "${newCategoryName}" em ${itemsToUpdate.length} itens.`);
         } catch (error) {
             console.error("Erro ao atualizar categoria dos itens:", error);
             showToast("Erro", "Erro ao atualizar itens da categoria.", "danger");
-            throw error; // Propaga o erro para ser tratado pelo chamador
+            throw error;
         }
     }
 
-    /**
-     * Remove todos os itens de uma categoria específica.
-     * @param {string} categoryName - Nome da categoria a ser removida.
-     */
     async function removeItemsByCategory(categoryName) {
-        if (typeof itemsRef === 'undefined') {
-            console.error("Referência do Firebase itemsRef não definida.");
-            showToast("Erro", "Erro interno: Firebase não configurado corretamente.", "danger");
-            return;
-        }
         try {
-            // Filtra os itens que pertencem à categoria
             const itemsToRemove = items.filter(item => item.Categoria === categoryName);
-            
             if (itemsToRemove.length === 0) {
                 console.log("Nenhum item encontrado na categoria:", categoryName);
                 return;
             }
-            
-            // Cria um objeto de atualizações em lote para remover os itens
             const updates = {};
             itemsToRemove.forEach(item => {
-                updates[item.id] = null; // Definir como null remove o nó
+                updates[item.id] = null;
             });
-            
-            // Remove todos os itens de uma vez
             await itemsRef.update(updates);
             console.log(`Removidos ${itemsToRemove.length} itens da categoria "${categoryName}".`);
-            // A UI será atualizada automaticamente pela função itemsRef.on('value', ...)
         } catch (error) {
             console.error("Erro ao remover itens da categoria:", error);
             showToast("Erro", "Erro ao remover itens da categoria.", "danger");
-            throw error; // Propaga o erro para ser tratado pelo chamador
+            throw error;
         }
     }
 
-    /**
-     * Move todos os itens de uma categoria para outra.
-     * @param {string} fromCategory - Nome da categoria de origem.
-     * @param {string} toCategory - Nome da categoria de destino.
-     */
-    async function moveItemsToCategory(fromCategory, toCategory) {
-        if (typeof itemsRef === 'undefined') {
-            console.error("Referência do Firebase itemsRef não definida.");
-            showToast("Erro", "Erro interno: Firebase não configurado corretamente.", "danger");
-            return;
-        }
+    async function moveItemsToCategory(fromCategoryName, toCategoryName) {
         try {
-            // Filtra os itens que pertencem à categoria de origem
-            const itemsToMove = items.filter(item => item.Categoria === fromCategory);
-            
+            const itemsToMove = items.filter(item => item.Categoria === fromCategoryName);
             if (itemsToMove.length === 0) {
-                console.log("Nenhum item encontrado na categoria:", fromCategory);
+                console.log("Nenhum item encontrado na categoria:", fromCategoryName);
                 return;
             }
-            
-            // Cria um objeto de atualizações em lote
             const updates = {};
             itemsToMove.forEach(item => {
-                updates[`${item.id}/Categoria`] = toCategory;
+                updates[`${item.id}/Categoria`] = toCategoryName;
             });
-            
-            // Atualiza todos os itens de uma vez
             await itemsRef.update(updates);
-            console.log(`Movidos ${itemsToMove.length} itens da categoria "${fromCategory}" para "${toCategory}".`);
-            // A UI será atualizada automaticamente pela função itemsRef.on('value', ...)
+            console.log(`Movidos ${itemsToMove.length} itens da categoria "${fromCategoryName}" para "${toCategoryName}".`);
         } catch (error) {
             console.error("Erro ao mover itens para outra categoria:", error);
-            showToast("Erro", "Erro ao mover itens para outra categoria.", "danger");
-            throw error; // Propaga o erro para ser tratado pelo chamador
+            showToast("Erro", "Erro ao mover itens.", "danger");
+            throw error;
         }
     }
 
-    // --- Funções de Gerenciamento de Categorias ---
+    // --- Funções de Gerenciamento de Categorias (Firebase) ---
 
-    /**
-     * Adiciona uma nova categoria à lista local.
-     * @param {string} name - Nome da categoria.
-     * @param {string} icon - Ícone (emoji) da categoria.
-     * @returns {boolean} - true se adicionado com sucesso, false se já existir.
-     */
-    function addCategory(name, icon = '📦') {
-        // Verifica se a categoria já existe
+    async function addCategoryToFirebase(name, icon = '📦') {
         if (categories.some(cat => cat.name === name)) {
+            showToast("Atenção", `A categoria "${name}" já existe.`, "warning");
             return false;
         }
-        
-        // Adiciona a nova categoria
-        categories.push({ name, icon });
-        
-        // Atualiza a UI
-        renderCategorySelect();
-        renderCategoryManagement();
-        
-        return true;
+        try {
+            await categoriesRef.push({ name, icon });
+            showToast("Sucesso", `Categoria "${name}" adicionada.`, "success");
+            return true;
+        } catch (error) {
+            console.error("Erro ao adicionar categoria ao Firebase:", error);
+            showToast("Erro", "Erro ao adicionar categoria.", "danger");
+            return false;
+        }
     }
 
-    /**
-     * Edita uma categoria existente na lista local e atualiza os itens relacionados.
-     * @param {string} oldName - Nome atual da categoria.
-     * @param {string} newName - Novo nome da categoria.
-     * @param {string} newIcon - Novo ícone da categoria.
-     */
-    async function editCategory(oldName, newName, newIcon) {
-        // Se o nome não mudou, apenas atualiza o ícone
-        if (oldName === newName) {
-            const category = categories.find(cat => cat.name === oldName);
-            if (category) {
-                category.icon = newIcon;
-                renderCategorySelect();
-                renderCategoryManagement();
-                renderList();
-                return;
-            }
-        }
-        
-        // Verifica se o novo nome já existe (exceto se for o mesmo)
-        if (oldName !== newName && categories.some(cat => cat.name === newName)) {
+    async function editCategoryInFirebase(categoryId, oldName, newName, newIcon) {
+        // Verifica se o novo nome já existe em outra categoria
+        if (oldName !== newName && categories.some(cat => cat.id !== categoryId && cat.name === newName)) {
             showToast("Erro", `A categoria "${newName}" já existe.`, "warning");
             return;
         }
         
         try {
-            // Primeiro atualiza os itens no Firebase
-            await updateItemsCategory(oldName, newName);
-            
-            // Depois atualiza a categoria localmente
-            const category = categories.find(cat => cat.name === oldName);
-            if (category) {
-                category.name = newName;
-                category.icon = newIcon;
+            // Se o nome da categoria mudou, atualiza os itens primeiro
+            if (oldName !== newName) {
+                await updateItemsCategory(oldName, newName);
             }
             
-            // Atualiza a UI
-            renderCategorySelect();
-            renderCategoryManagement();
-            showToast("Sucesso", `Categoria "${oldName}" editada com sucesso.`, "success");
+            // Atualiza a categoria no Firebase
+            await categoriesRef.child(categoryId).update({ name: newName, icon: newIcon });
+            
+            showToast("Sucesso", `Categoria "${oldName}" editada para "${newName}".`, "success");
+            // UI será atualizada pelo listener categoriesRef.on('value')
         } catch (error) {
             console.error("Erro ao editar categoria:", error);
             showToast("Erro", "Erro ao editar categoria.", "danger");
         }
     }
 
-    /**
-     * Remove uma categoria da lista local e todos os itens relacionados.
-     * @param {string} name - Nome da categoria a ser removida.
-     * @param {string} option - Opção de exclusão: 'remove' para excluir itens, 'move' para mover para outra categoria.
-     * @param {string} targetCategory - Nome da categoria de destino (se option for 'move').
-     */
-    async function deleteCategory(name, option = 'remove', targetCategory = null) {
+    async function deleteCategoryFromFirebase(categoryId, categoryName, option = 'remove', targetCategoryName = null) {
         try {
-            if (option === 'move' && targetCategory) {
-                // Move os itens para outra categoria
-                await moveItemsToCategory(name, targetCategory);
+            if (option === 'move' && targetCategoryName) {
+                await moveItemsToCategory(categoryName, targetCategoryName);
             } else {
-                // Remove os itens da categoria
-                await removeItemsByCategory(name);
+                await removeItemsByCategory(categoryName);
             }
             
-            // Depois remove a categoria localmente
-            categories = categories.filter(cat => cat.name !== name);
-            
-            // Atualiza a UI
-            renderCategorySelect();
-            renderCategoryManagement();
-            showToast("Sucesso", `Categoria "${name}" removida com sucesso.`, "success");
+            await categoriesRef.child(categoryId).remove();
+            showToast("Sucesso", `Categoria "${categoryName}" removida.`, "success");
+            // UI será atualizada pelos listeners
         } catch (error) {
             console.error("Erro ao excluir categoria:", error);
             showToast("Erro", "Erro ao excluir categoria.", "danger");
         }
     }
-
-    /**
-     * Reordena as categorias.
-     * @param {Array} newOrder - Nova ordem das categorias.
-     */
-    function reorderCategories(newOrder) {
-        // Cria um novo array de categorias na ordem especificada
-        const reorderedCategories = [];
-        newOrder.forEach(name => {
-            const category = categories.find(cat => cat.name === name);
+    
+    function reorderCategories(orderedCategoryIds) {
+        const reordered = [];
+        orderedCategoryIds.forEach(id => {
+            const category = categories.find(cat => cat.id === id);
             if (category) {
-                reorderedCategories.push(category);
+                reordered.push(category);
             }
         });
+        // Adiciona quaisquer categorias que não estavam na lista ordenada (novas categorias, por exemplo)
+        categories.forEach(cat => {
+            if (!reordered.find(rcat => rcat.id === cat.id)) {
+                reordered.push(cat);
+            }
+        });
+        categories = reordered;
         
-        // Atualiza o array de categorias
-        categories = reorderedCategories;
-        
-        // Atualiza a UI
+        // Re-renderiza as partes da UI que dependem da ordem das categorias
         renderCategorySelect();
         renderList();
+        // Note: renderCategoryManagement() é chamado separadamente e renderiza na ordem atual de 'categories'
     }
 
     // --- Funções de Filtragem e Busca ---
-
-    /**
-     * Filtra os itens com base no filtro atual e termo de busca.
-     * @returns {Array} - Itens filtrados.
-     */
     function getFilteredItems() {
-        // Primeiro filtra por status (todos, pendentes, comprados)
         let filtered = [...items];
-        
         if (currentFilter === 'pending') {
             filtered = filtered.filter(item => !item.Comprado);
         } else if (currentFilter === 'bought') {
             filtered = filtered.filter(item => item.Comprado);
         }
-        
-        // Depois filtra por termo de busca
         if (searchTerm) {
             const term = searchTerm.toLowerCase();
             filtered = filtered.filter(item => 
@@ -488,71 +307,50 @@ document.addEventListener('DOMContentLoaded', function () {
                 item.Categoria.toLowerCase().includes(term)
             );
         }
-        
         return filtered;
     }
 
-    /**
-     * Atualiza o filtro atual.
-     * @param {string} filter - Novo filtro ('all', 'pending', 'bought').
-     */
     function updateFilter(filter) {
         currentFilter = filter;
-        
-        // Atualiza a UI dos botões de filtro
         filterButtons.forEach(btn => {
-            if (btn.dataset.filter === filter) {
-                btn.classList.add('active');
-            } else {
-                btn.classList.remove('active');
-            }
+            btn.classList.toggle('active', btn.dataset.filter === filter);
         });
-        
-        // Renderiza a lista com o novo filtro
         renderList();
     }
 
-    /**
-     * Atualiza o termo de busca.
-     * @param {string} term - Novo termo de busca.
-     */
     function updateSearch(term) {
         searchTerm = term;
-        
-        // Sincroniza os campos de busca
         searchInput.value = term;
         searchInputMobile.value = term;
-        
-        // Renderiza a lista com o novo termo
         renderList();
     }
 
     // --- Funções de Renderização da UI ---
-
     function renderCategorySelect() {
-        categorySelect.innerHTML = '<option value="" disabled selected>Selecione a categoria</option>';
+        const currentCategoryValue = categorySelect.value;
+        categorySelect.innerHTML = '<option value="" disabled>Selecione a categoria</option>';
         categories.forEach(category => {
             const option = document.createElement('option');
-            option.value = category.name;
+            option.value = category.name; // O valor continua sendo o nome da categoria para compatibilidade com item.Categoria
             option.textContent = `${category.icon} ${category.name}`;
             categorySelect.appendChild(option);
         });
-        
-        // Também atualiza o select de categorias para mover itens
+        // Tenta restaurar a seleção anterior se ainda válida
+        if (categories.some(c => c.name === currentCategoryValue)) {
+            categorySelect.value = currentCategoryValue;
+        } else {
+             categorySelect.selectedIndex = 0; // Seleciona "Selecione a categoria"
+        }
         renderMoveToSelect();
     }
     
-    /**
-     * Renderiza o select de categorias para mover itens.
-     * @param {string} excludeCategory - Nome da categoria a ser excluída da lista.
-     */
-    function renderMoveToSelect(excludeCategory = '') {
+    function renderMoveToSelect(excludeCategoryName = '') {
         moveToSelect.innerHTML = '';
         categories
-            .filter(category => category.name !== excludeCategory)
+            .filter(category => category.name !== excludeCategoryName)
             .forEach(category => {
                 const option = document.createElement('option');
-                option.value = category.name;
+                option.value = category.name; // O valor é o nome da categoria
                 option.textContent = `${category.icon} ${category.name}`;
                 moveToSelect.appendChild(option);
             });
@@ -560,19 +358,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function renderCategoryManagement() {
         categoryManagementList.innerHTML = '';
-        
         if (categories.length === 0) {
             categoryManagementList.innerHTML = '<p class="text-muted">Nenhuma categoria cadastrada.</p>';
             return;
         }
         
         categories.forEach(category => {
-            // Conta quantos itens existem nesta categoria
             const itemCount = items.filter(item => item.Categoria === category.name).length;
             
             const categoryItem = document.createElement('div');
             categoryItem.className = 'category-item';
-            categoryItem.dataset.name = category.name;
+            categoryItem.dataset.id = category.id; // Usar ID do Firebase
+            categoryItem.dataset.name = category.name; // Guardar nome para reordenação
             
             const dragHandle = document.createElement('span');
             dragHandle.className = 'drag-handle';
@@ -580,24 +377,19 @@ document.addEventListener('DOMContentLoaded', function () {
             
             const categoryInfo = document.createElement('div');
             categoryInfo.className = 'category-info';
-            
-            const categoryIcon = document.createElement('span');
-            categoryIcon.className = 'category-icon';
-            categoryIcon.textContent = category.icon;
-            
-            const categoryName = document.createElement('span');
-            categoryName.className = 'category-name';
-            categoryName.textContent = category.name;
-            
+            const categoryIconEl = document.createElement('span');
+            categoryIconEl.className = 'category-icon';
+            categoryIconEl.textContent = category.icon;
+            const categoryNameEl = document.createElement('span');
+            categoryNameEl.className = 'category-name';
+            categoryNameEl.textContent = category.name;
             const categoryCount = document.createElement('span');
             categoryCount.className = 'category-count';
             categoryCount.textContent = itemCount;
             
-            categoryInfo.appendChild(categoryIcon);
-            categoryInfo.appendChild(categoryName);
-            if (itemCount > 0) {
-                categoryInfo.appendChild(categoryCount);
-            }
+            categoryInfo.appendChild(categoryIconEl);
+            categoryInfo.appendChild(categoryNameEl);
+            if (itemCount > 0) categoryInfo.appendChild(categoryCount);
             
             const categoryActions = document.createElement('div');
             categoryActions.className = 'category-item-actions';
@@ -608,12 +400,11 @@ document.addEventListener('DOMContentLoaded', function () {
             editButton.title = 'Editar categoria';
             editButton.setAttribute('aria-label', `Editar categoria ${category.name}`);
             editButton.addEventListener('click', () => {
-                // Preenche o modal com os dados da categoria
-                editCategoryOldName.value = category.name;
-                editCategoryName.value = category.name;
+                editCategoryId.value = category.id; // ID da categoria
+                editCategoryOldName.value = category.name; // Nome antigo
+                editCategoryName.value = category.name;   // Nome atual para edição
                 editCategoryIcon.value = category.icon;
-                
-                // Abre o modal
+                editEmojiPicker.classList.add('d-none');
                 editCategoryModalInstance.show();
             });
             
@@ -623,13 +414,11 @@ document.addEventListener('DOMContentLoaded', function () {
             deleteButton.title = 'Excluir categoria';
             deleteButton.setAttribute('aria-label', `Excluir categoria ${category.name}`);
             deleteButton.addEventListener('click', () => {
-                // Preenche o modal com o nome da categoria
-                deleteCategoryName.textContent = category.name;
-                
-                // Atualiza o select de categorias para mover itens
+                deleteCategoryIdField.value = category.id; // ID da categoria
+                deleteCategoryName.textContent = category.name; // Nome para exibição
                 renderMoveToSelect(category.name);
-                
-                // Abre o modal
+                moveToCategory.classList.add('d-none');
+                deleteOptionRemove.checked = true;
                 deleteCategoryModalInstance.show();
             });
             
@@ -643,22 +432,15 @@ document.addEventListener('DOMContentLoaded', function () {
             categoryManagementList.appendChild(categoryItem);
         });
         
-        // Inicializa o Sortable para arrastar e soltar
-        if (sortableInstance) {
-            sortableInstance.destroy();
-        }
-        
+        if (sortableInstance) sortableInstance.destroy();
         sortableInstance = new Sortable(categoryManagementList, {
             animation: 150,
             handle: '.drag-handle',
             ghostClass: 'dragging',
             onEnd: function(evt) {
-                // Obtém a nova ordem das categorias
-                const newOrder = Array.from(categoryManagementList.children)
-                    .map(item => item.dataset.name);
-                
-                // Reordena as categorias
-                reorderCategories(newOrder);
+                const orderedCategoryIds = Array.from(categoryManagementList.children)
+                    .map(item => item.dataset.id); // Reordenar por ID
+                reorderCategories(orderedCategoryIds);
             }
         });
     }
@@ -709,324 +491,224 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function renderList() {
         shoppingList.innerHTML = '';
-        
-        // Obtém os itens filtrados
         const filteredItems = getFilteredItems();
         
         if (filteredItems.length === 0) {
-            // Mensagem quando não há itens
             const emptyMessage = document.createElement('div');
             emptyMessage.className = 'text-center p-4 text-muted';
-            
             if (searchTerm) {
-                emptyMessage.innerHTML = `<i class="bi bi-search mb-3" style="font-size: 2rem;"></i>
-                                         <p>Nenhum item encontrado para "${searchTerm}"</p>`;
+                emptyMessage.innerHTML = `<i class="bi bi-search mb-3" style="font-size: 2rem;"></i><p>Nenhum item encontrado para "${searchTerm}"</p>`;
             } else if (currentFilter === 'pending') {
-                emptyMessage.innerHTML = `<i class="bi bi-cart mb-3" style="font-size: 2rem;"></i>
-                                         <p>Não há itens pendentes na sua lista</p>`;
+                emptyMessage.innerHTML = `<i class="bi bi-cart mb-3" style="font-size: 2rem;"></i><p>Não há itens pendentes</p>`;
             } else if (currentFilter === 'bought') {
-                emptyMessage.innerHTML = `<i class="bi bi-cart-check mb-3" style="font-size: 2rem;"></i>
-                                         <p>Não há itens comprados na sua lista</p>`;
+                emptyMessage.innerHTML = `<i class="bi bi-cart-check mb-3" style="font-size: 2rem;"></i><p>Não há itens comprados</p>`;
             } else {
-                emptyMessage.innerHTML = `<i class="bi bi-cart mb-3" style="font-size: 2rem;"></i>
-                                         <p>Sua lista de compras está vazia</p>
-                                         <button class="btn btn-primary" data-bs-toggle="offcanvas" data-bs-target="#offcanvasMenu">
-                                             <i class="bi bi-plus-circle me-2"></i>Adicionar Item
-                                         </button>`;
+                emptyMessage.innerHTML = `<i class="bi bi-cart mb-3" style="font-size: 2rem;"></i><p>Sua lista está vazia</p><button class="btn btn-primary" data-bs-toggle="offcanvas" data-bs-target="#offcanvasMenu"><i class="bi bi-plus-circle me-2"></i>Adicionar Item</button>`;
             }
-            
             shoppingList.appendChild(emptyMessage);
             return;
         }
         
         const grouped = {};
-
-        // Agrupar itens por categoria
         filteredItems.forEach(item => {
-            // Usa a propriedade 'Categoria' do item carregado do Firebase
-            if (!grouped[item.Categoria]) {
-                grouped[item.Categoria] = [];
-            }
+            if (!grouped[item.Categoria]) grouped[item.Categoria] = [];
             grouped[item.Categoria].push(item);
         });
 
-        // Ordenar categorias conforme a ordem definida pelo usuário
-        const sortedCategories = [];
-        
-        // Primeiro adiciona as categorias na ordem definida pelo usuário
+        // Usar a ordem da 'categories' array (que é sincronizada com Firebase e pode ser reordenada localmente)
         categories.forEach(category => {
-            if (grouped[category.name]) {
-                sortedCategories.push(category.name);
-            }
-        });
-        
-        // Depois adiciona categorias que possam existir nos itens mas não na lista de categorias
-        Object.keys(grouped).forEach(categoryName => {
-            if (!sortedCategories.includes(categoryName)) {
-                sortedCategories.push(categoryName);
-            }
-        });
+            const categoryName = category.name;
+            if (grouped[categoryName]) {
+                const icon = category.icon || '📦';
+                const itemCount = grouped[categoryName].length;
 
-        sortedCategories.forEach(categoryName => {
-            // Encontra o ícone localmente para a categoria
-            const category = categories.find(c => c.name === categoryName);
-            const icon = category ? category.icon : '📦'; // Ícone padrão se não encontrar a categoria localmente
-            
-            // Conta quantos itens existem nesta categoria
-            const itemCount = grouped[categoryName].length;
+                const header = document.createElement('li');
+                header.className = 'list-group-item active d-flex align-items-center slide-in';
+                header.style.justifyContent = 'space-between';
+                const headerLeft = document.createElement('div');
+                headerLeft.className = 'd-flex align-items-center';
+                const iconSpan = document.createElement('span');
+                iconSpan.textContent = icon;
+                iconSpan.style.fontSize = '1.5rem';
+                iconSpan.style.marginRight = '10px';
+                const textSpan = document.createElement('span');
+                textSpan.textContent = categoryName;
+                const countSpan = document.createElement('span');
+                countSpan.className = 'ms-2 badge bg-light text-dark';
+                countSpan.textContent = itemCount;
+                headerLeft.appendChild(iconSpan);
+                headerLeft.appendChild(textSpan);
+                headerLeft.appendChild(countSpan);
+                header.appendChild(headerLeft);
+                shoppingList.appendChild(header);
 
-            // Cabeçalho da Categoria
-            const header = document.createElement('li');
-            header.className = 'list-group-item active d-flex align-items-center slide-in';
-            header.style.justifyContent = 'space-between';
+                grouped[categoryName].forEach((item) => {
+                    const li = document.createElement('li');
+                    li.className = `list-group-item d-flex justify-content-between align-items-center fade-in ${item.Comprado ? 'bought' : ''}`;
+                    li.setAttribute('data-id', item.id);
+                    li.setAttribute('aria-checked', item.Comprado ? 'true' : 'false');
+                    li.setAttribute('role', 'checkbox');
+                    li.setAttribute('tabindex', '0');
 
-            const headerLeft = document.createElement('div');
-            headerLeft.className = 'd-flex align-items-center';
+                    const itemContentDiv = document.createElement('div');
+                    itemContentDiv.className = 'list-item-content';
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.checked = item.Comprado;
+                    checkbox.className = 'form-check-input';
+                    checkbox.setAttribute('aria-label', `Marcar ${item.Nome} como ${item.Comprado ? 'não comprado' : 'comprado'}`);
+                    checkbox.addEventListener('change', async () => {
+                        const newBoughtStatus = checkbox.checked;
+                        item.Comprado = newBoughtStatus; // Otimista
+                        li.classList.toggle('bought', newBoughtStatus);
+                        li.setAttribute('aria-checked', newBoughtStatus ? 'true' : 'false');
+                        await updateItemInFirebase(item.id, { Comprado: newBoughtStatus });
+                    });
 
-            const iconSpan = document.createElement('span');
-            iconSpan.textContent = icon;
-            iconSpan.style.fontSize = '1.5rem';
-            iconSpan.style.marginRight = '10px';
+                    const itemNameSpan = document.createElement('span');
+                    itemNameSpan.textContent = item.Nome;
+                    itemNameSpan.className = 'item-name';
+                    const itemQuantitySpan = document.createElement('span');
+                    itemQuantitySpan.textContent = item.Quantidade > 1 ? `(${item.Quantidade})` : '';
+                    itemQuantitySpan.className = 'item-quantity';
 
-            const textSpan = document.createElement('span');
-            textSpan.textContent = categoryName;
-            
-            const countSpan = document.createElement('span');
-            countSpan.className = 'ms-2 badge bg-light text-dark';
-            countSpan.textContent = itemCount;
+                    itemContentDiv.appendChild(checkbox);
+                    itemContentDiv.appendChild(itemNameSpan);
+                    if (item.Quantidade > 1) itemContentDiv.appendChild(itemQuantitySpan);
 
-            headerLeft.appendChild(iconSpan);
-            headerLeft.appendChild(textSpan);
-            headerLeft.appendChild(countSpan);
-            
-            // Removidos botões de editar/excluir da tela principal conforme solicitado
-            header.appendChild(headerLeft);
-            shoppingList.appendChild(header);
+                    const removeBtn = document.createElement('button');
+                    removeBtn.className = 'btn-item-remove';
+                    removeBtn.innerHTML = '<i class="bi bi-trash"></i>';
+                    removeBtn.title = 'Remover item';
+                    removeBtn.setAttribute('aria-label', `Remover ${item.Nome}`);
+                    removeBtn.addEventListener('click', async (e) => {
+                        e.stopPropagation();
+                        await removeItemFromFirebase(item.id);
+                    });
+                    
+                    const swipeActions = document.createElement('div');
+                    swipeActions.className = 'swipe-actions';
+                    const checkAction = document.createElement('div');
+                    checkAction.className = 'swipe-action swipe-action-check';
+                    checkAction.innerHTML = '<i class="bi bi-check-lg"></i>';
+                    const deleteAction = document.createElement('div');
+                    deleteAction.className = 'swipe-action swipe-action-delete';
+                    deleteAction.innerHTML = '<i class="bi bi-trash"></i>';
+                    swipeActions.appendChild(checkAction);
+                    swipeActions.appendChild(deleteAction);
 
-            // Itens da Categoria
-            grouped[categoryName].forEach((item) => {
-                const li = document.createElement('li');
-                // Adiciona a classe 'bought' se o item estiver marcado como comprado no Firebase
-                li.className = `list-group-item d-flex justify-content-between align-items-center fade-in ${item.Comprado ? 'bought' : ''}`;
-                li.setAttribute('data-id', item.id);
-                li.setAttribute('aria-checked', item.Comprado ? 'true' : 'false');
-                li.setAttribute('role', 'checkbox');
-                li.setAttribute('tabindex', '0');
-
-                // Conteúdo do item (checkbox, nome, quantidade)
-                const itemContentDiv = document.createElement('div');
-                itemContentDiv.className = 'list-item-content';
-
-                const checkbox = document.createElement('input');
-                checkbox.type = 'checkbox';
-                checkbox.checked = item.Comprado; // Usa o status 'Comprado' do Firebase
-                checkbox.className = 'form-check-input';
-                checkbox.setAttribute('aria-label', `Marcar ${item.Nome} como ${item.Comprado ? 'não comprado' : 'comprado'}`);
-                // Evento para marcar/desmarcar
-                checkbox.addEventListener('change', async () => {
-                    const newBoughtStatus = checkbox.checked;
-                     const updatedData = {
-                        Comprado: newBoughtStatus // Atualiza apenas o status de comprado no Firebase
-                    };
-                    // Atualiza o estado local temporariamente para feedback visual rápido
-                     item.Comprado = newBoughtStatus;
-                     li.classList.toggle('bought', newBoughtStatus); // Atualiza a classe visual
-                     li.setAttribute('aria-checked', newBoughtStatus ? 'true' : 'false');
-                    // Envia a atualização para o Firebase
-                    await updateItemInFirebase(item.id, updatedData); // Use await e o ID do item do Firebase
-                    // A lista será atualizada automaticamente na UI pela função itemsRef.on('value', ...)
-                });
-
-                const itemNameSpan = document.createElement('span');
-                itemNameSpan.textContent = item.Nome; // Usa o nome do item do Firebase
-                itemNameSpan.className = 'item-name';
-
-                const itemQuantitySpan = document.createElement('span');
-                itemQuantitySpan.textContent = item.Quantidade > 1 ? `(${item.Quantidade})` : ''; // Usa a quantidade do item do Firebase
-                itemQuantitySpan.className = 'item-quantity';
-
-                itemContentDiv.appendChild(checkbox);
-                itemContentDiv.appendChild(itemNameSpan);
-                 if (item.Quantidade > 1) {
-                     itemContentDiv.appendChild(itemQuantitySpan);
-                 }
-
-                // Botão de remover (alterado para ícone de lixeira)
-                const removeBtn = document.createElement('button');
-                removeBtn.className = 'btn-item-remove';
-                removeBtn.innerHTML = '<i class="bi bi-trash"></i>';
-                removeBtn.title = 'Remover item';
-                removeBtn.setAttribute('aria-label', `Remover ${item.Nome} da lista`);
-                removeBtn.addEventListener('click', async (e) => {
-                    e.stopPropagation(); // Impede que o clique no botão acione o evento do LI
-                    await removeItemFromFirebase(item.id); // Remove o item do Firebase
-                    // A lista será renderizada automaticamente pela função itemsRef.on('value', ...)
-                });
-                
-                // Ações de swipe (para dispositivos touch)
-                const swipeActions = document.createElement('div');
-                swipeActions.className = 'swipe-actions';
-                
-                const checkAction = document.createElement('div');
-                checkAction.className = 'swipe-action swipe-action-check';
-                checkAction.innerHTML = '<i class="bi bi-check-lg"></i>';
-                
-                const deleteAction = document.createElement('div');
-                deleteAction.className = 'swipe-action swipe-action-delete';
-                deleteAction.innerHTML = '<i class="bi bi-trash"></i>';
-                
-                swipeActions.appendChild(checkAction);
-                swipeActions.appendChild(deleteAction);
-
-                // Adicionar evento de clique no LI para marcar/desmarcar (ignora cliques nos botões)
-                 li.addEventListener('click', async (e) => {
-                    // Impede que o clique no LI acione o evento se for nos botões ou checkbox
-                    if (e.target === removeBtn || e.target === checkbox || removeBtn.contains(e.target)) {
-                        return;
-                    }
-                    const newBoughtStatus = !checkbox.checked;
-                     const updatedData = {
-                        Comprado: newBoughtStatus // Atualiza apenas o status de comprado no Firebase
-                    };
-                     // Atualiza o estado local temporariamente para feedback visual rápido
-                     item.Comprado = newBoughtStatus;
-                     checkbox.checked = newBoughtStatus;
-                     li.classList.toggle('bought', newBoughtStatus); // Atualiza a classe visual
-                     li.setAttribute('aria-checked', newBoughtStatus ? 'true' : 'false');
-                    // Envia a atualização para o Firebase
-                    await updateItemInFirebase(item.id, updatedData); // Use await e o ID do item do Firebase
-                    // A lista será atualizada automaticamente na UI pela função itemsRef.on('value', ...)
-                });
-                
-                // Adiciona suporte a navegação por teclado
-                li.addEventListener('keydown', async (e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault();
+                    li.addEventListener('click', async (e) => {
+                        if (e.target === removeBtn || e.target === checkbox || removeBtn.contains(e.target)) return;
                         const newBoughtStatus = !checkbox.checked;
-                        const updatedData = {
-                            Comprado: newBoughtStatus
-                        };
-                        item.Comprado = newBoughtStatus;
+                        item.Comprado = newBoughtStatus; // Otimista
                         checkbox.checked = newBoughtStatus;
                         li.classList.toggle('bought', newBoughtStatus);
                         li.setAttribute('aria-checked', newBoughtStatus ? 'true' : 'false');
-                        await updateItemInFirebase(item.id, updatedData);
-                    } else if (e.key === 'Delete') {
-                        e.preventDefault();
-                        await removeItemFromFirebase(item.id);
-                    }
-                });
+                        await updateItemInFirebase(item.id, { Comprado: newBoughtStatus });
+                    });
+                    li.addEventListener('keydown', async (e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            const newBoughtStatus = !checkbox.checked;
+                            item.Comprado = newBoughtStatus; checkbox.checked = newBoughtStatus;
+                            li.classList.toggle('bought', newBoughtStatus);
+                            li.setAttribute('aria-checked', newBoughtStatus ? 'true' : 'false');
+                            await updateItemInFirebase(item.id, { Comprado: newBoughtStatus });
+                        } else if (e.key === 'Delete') {
+                            e.preventDefault();
+                            await removeItemFromFirebase(item.id);
+                        }
+                    });
 
-                li.appendChild(itemContentDiv);
-                li.appendChild(removeBtn);
-                li.appendChild(swipeActions);
-                shoppingList.appendChild(li);
-                
-                // Inicializa o suporte a gestos de swipe
-                initSwipeGestures(li);
-            });
+                    li.appendChild(itemContentDiv);
+                    li.appendChild(removeBtn);
+                    li.appendChild(swipeActions);
+                    shoppingList.appendChild(li);
+                    initSwipeGestures(li);
+                });
+            }
+        });
+         // Adiciona categorias que possam existir nos itens mas não foram renderizadas (caso raro ou de inconsistência)
+        Object.keys(grouped).forEach(categoryName => {
+            if (!categories.find(c => c.name === categoryName)) {
+                 // Lógica para renderizar itens de categorias "órfãs", se necessário
+                 // Por ora, focamos nas categorias gerenciadas
+                console.warn(`Itens encontrados para categoria não gerenciada: ${categoryName}`);
+            }
         });
     }
     
-    /**
-     * Inicializa os gestos de swipe para um item da lista.
-     * @param {HTMLElement} element - Elemento da lista.
-     */
     function initSwipeGestures(element) {
-        let touchStartX = 0;
-        let touchEndX = 0;
-        let isSwiping = false;
+        let touchStartX = 0, touchEndX = 0, isSwiping = false;
+        const itemId = element.dataset.id;
         
-        element.addEventListener('touchstart', (e) => {
-            touchStartX = e.changedTouches[0].screenX;
-        }, { passive: true });
-        
+        element.addEventListener('touchstart', (e) => { touchStartX = e.changedTouches[0].screenX; isSwiping = false; }, { passive: true });
         element.addEventListener('touchmove', (e) => {
             touchEndX = e.changedTouches[0].screenX;
             const diffX = touchStartX - touchEndX;
-            
-            // Se o deslize for significativo para a esquerda
-            if (diffX > 50 && !isSwiping) {
-                isSwiping = true;
-                element.classList.add('swiped');
-            }
-            
-            // Se o deslize for significativo para a direita (voltar)
-            if (diffX < -50 && isSwiping) {
-                isSwiping = false;
-                element.classList.remove('swiped');
+            if (Math.abs(diffX) > 30 && !isSwiping) { // Começa a considerar swipe
+                 isSwiping = true;
+                 if (diffX > 0) { // Swipe para esquerda
+                     element.classList.add('swiped');
+                 } else { // Swipe para direita
+                     element.classList.remove('swiped');
+                 }
             }
         }, { passive: true });
-        
+
         element.addEventListener('touchend', (e) => {
+            if (!isSwiping) return; // Se não foi um swipe real, não faz nada
             touchEndX = e.changedTouches[0].screenX;
             const diffX = touchStartX - touchEndX;
             
-            // Se o deslize for significativo para a esquerda
-            if (diffX > 100) {
-                // Mostra as ações de swipe
+            if (diffX > 100) { // Swipe significativo para esquerda, mantém ações visíveis
                 element.classList.add('swiped');
+                // Ações são adicionadas uma vez para evitar múltiplos listeners
+                const checkAction = element.querySelector('.swipe-action-check');
+                const deleteAction = element.querySelector('.swipe-action-delete');
                 
-                // Adiciona eventos de clique às ações
-                const itemId = element.dataset.id;
                 const item = items.find(i => i.id === itemId);
-                
                 if (item) {
-                    const checkAction = element.querySelector('.swipe-action-check');
-                    const deleteAction = element.querySelector('.swipe-action-delete');
-                    
-                    checkAction.addEventListener('click', async () => {
-                        const newBoughtStatus = !item.Comprado;
-                        await updateItemInFirebase(itemId, { Comprado: newBoughtStatus });
+                    checkAction.onclick = async () => { // Usar .onclick para sobrescrever
+                        await updateItemInFirebase(itemId, { Comprado: !item.Comprado });
                         element.classList.remove('swiped');
-                    });
-                    
-                    deleteAction.addEventListener('click', async () => {
+                    };
+                    deleteAction.onclick = async () => { // Usar .onclick para sobrescrever
                         await removeItemFromFirebase(itemId);
-                        element.classList.remove('swiped');
-                    });
+                        // O item será removido da lista pela atualização do Firebase
+                    };
                 }
-            } else if (diffX < -50) {
-                // Esconde as ações de swipe se deslizar para a direita
+            } else if (diffX < -50) { // Swipe para direita, esconde ações
                 element.classList.remove('swiped');
+            } else if (isSwiping && Math.abs(diffX) <= 100 && diffX > 0 ) {
+                // Se foi um swipe curto para a esquerda, não mantém aberto, mas também não executa ação de clique
+                // Pode ser necessário ajustar essa lógica se o clique for disparado indevidamente
+                // element.classList.remove('swiped'); // Opcional: resetar se o swipe não foi "forte" o suficiente
             }
-            
             isSwiping = false;
+            touchStartX = 0;
+            touchEndX = 0;
         }, { passive: true });
     }
 
-    // --- Função para criar notificações toast ---
-    
-    /**
-     * Exibe uma notificação toast.
-     * @param {string} title - Título da notificação.
-     * @param {string} message - Mensagem da notificação.
-     * @param {string} type - Tipo da notificação (success, info, warning, danger).
-     */
     function showToast(title, message, type = 'info') {
         const toastContainer = document.querySelector('.toast-container');
-        
         const toast = document.createElement('div');
-        toast.className = `toast show`;
+        toast.className = `toast`; // Removido 'show' para animação Bootstrap
         toast.setAttribute('role', 'alert');
         toast.setAttribute('aria-live', 'assertive');
         toast.setAttribute('aria-atomic', 'true');
         
         const toastHeader = document.createElement('div');
         toastHeader.className = `toast-header text-white bg-${type}`;
-        
         const toastTitle = document.createElement('strong');
         toastTitle.className = 'me-auto';
         toastTitle.textContent = title;
-        
         const closeButton = document.createElement('button');
         closeButton.type = 'button';
         closeButton.className = 'btn-close btn-close-white';
         closeButton.setAttribute('data-bs-dismiss', 'toast');
         closeButton.setAttribute('aria-label', 'Fechar');
-        closeButton.addEventListener('click', () => {
-            toast.remove();
-        });
         
         toastHeader.appendChild(toastTitle);
         toastHeader.appendChild(closeButton);
@@ -1037,21 +719,14 @@ document.addEventListener('DOMContentLoaded', function () {
         
         toast.appendChild(toastHeader);
         toast.appendChild(toastBody);
-        
         toastContainer.appendChild(toast);
-        
-        // Remove o toast após 5 segundos
-        setTimeout(() => {
-            toast.classList.add('fade');
-            setTimeout(() => {
-                toast.remove();
-            }, 300);
-        }, 5000);
+
+        const bsToast = new bootstrap.Toast(toast, { delay: 5000 });
+        bsToast.show();
+        toast.addEventListener('hidden.bs.toast', () => toast.remove());
     }
 
     // --- Event Listeners ---
-
-    // Adicionar Item
     document.getElementById('addItemForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         const itemName = itemInput.value.trim();
@@ -1059,163 +734,91 @@ document.addEventListener('DOMContentLoaded', function () {
         const categoryName = categorySelect.value;
 
         if (itemName && categoryName) {
-            // Cria o objeto de dados do item para o Firebase
-            const itemData = {
-                Nome: itemName,
-                Quantidade: itemQuantity,
-                Categoria: categoryName,
-                Comprado: false
-            };
-
+            const itemData = { Nome: itemName, Quantidade: itemQuantity, Categoria: categoryName, Comprado: false };
             await addItemToFirebase(itemData);
-            
-            // Limpa os campos do formulário
             itemInput.value = '';
             itemQuantityInput.value = '1';
-            categorySelect.selectedIndex = 0;
-            
-            // Fecha o offcanvas em dispositivos móveis
+            // categorySelect.selectedIndex = 0; // Não reseta para permitir adicionar vários itens na mesma categoria
             if (window.innerWidth < 768) {
                 const offcanvasInstance = bootstrap.Offcanvas.getInstance(document.getElementById('offcanvasMenu'));
-                if (offcanvasInstance) {
-                    offcanvasInstance.hide();
-                }
+                if (offcanvasInstance) offcanvasInstance.hide();
             }
         } else {
-            showToast("Atenção", "Por favor, preencha todos os campos.", "warning");
+            showToast("Atenção", "Preencha nome do item e selecione uma categoria.", "warning");
         }
     });
 
-    // Adicionar Categoria
-    document.getElementById('addCategoryForm').addEventListener('submit', (e) => {
+    document.getElementById('addCategoryForm').addEventListener('submit', async (e) => {
         e.preventDefault();
-        const newCategory = newCategoryInput.value.trim();
-        const newIcon = newCategoryIconInput.value.trim() || '📦'; // Usa ícone padrão se não for fornecido
-
-        if (newCategory && !categories.some(c => c.name === newCategory)) {
-            // Adiciona a categoria localmente
-            categories.push({ name: newCategory, icon: newIcon });
-            
-            // Limpa os campos do formulário
-            newCategoryInput.value = '';
-            newCategoryIconInput.value = '';
-            
-            // Se as categorias fossem no Firebase, você chamaria uma função para adicionar/atualizar o nó 'categories' aqui
-            renderCategorySelect(); // Atualiza o dropdown local
-            renderCategoryManagement(); // Atualiza a lista de gerenciamento de categorias
-            showToast("Sucesso", `Categoria "${newCategory}" adicionada com sucesso!`, "success");
-        } else if (newCategory) {
-            showToast("Atenção", `A categoria "${newCategory}" já existe.`, "warning");
+        const newCatName = newCategoryInput.value.trim();
+        const newIcon = newCategoryIconInput.value.trim() || '📦';
+        if (newCatName) {
+            const success = await addCategoryToFirebase(newCatName, newIcon);
+            if (success) {
+                newCategoryInput.value = '';
+                newCategoryIconInput.value = '';
+                emojiPicker.classList.add('d-none');
+            }
         } else {
-            showToast("Atenção", "Por favor, insira o nome da nova categoria.", "warning");
+            showToast("Atenção", "Insira o nome da nova categoria.", "warning");
         }
     });
 
-    // Toggle Emoji Picker
     emojiPickerButton.addEventListener('click', () => {
-        if (emojiPicker.classList.contains('d-none')) {
-            renderEmojiPicker(); // Renderiza o picker antes de mostrar
-            emojiPicker.classList.remove('d-none');
-        } else {
-            emojiPicker.classList.add('d-none');
-        }
+        emojiPicker.classList.toggle('d-none');
+        if (!emojiPicker.classList.contains('d-none')) renderEmojiPicker();
     });
     
-    // Toggle Edit Emoji Picker
     editEmojiPickerButton.addEventListener('click', () => {
-        if (editEmojiPicker.classList.contains('d-none')) {
-            renderEditEmojiPicker(); // Renderiza o picker antes de mostrar
-            editEmojiPicker.classList.remove('d-none');
-        } else {
-            editEmojiPicker.classList.add('d-none');
-        }
+        editEmojiPicker.classList.toggle('d-none');
+        if (!editEmojiPicker.classList.contains('d-none')) renderEditEmojiPicker();
     });
 
-    // Salvar alterações da categoria
     saveCategoryChanges.addEventListener('click', async () => {
-        const oldName = editCategoryOldName.value;
-        const newName = editCategoryName.value.trim();
-        const newIcon = editCategoryIcon.value.trim() || '📦';
+        const catId = editCategoryId.value;
+        const oldCatName = editCategoryOldName.value;
+        const newCatName = editCategoryName.value.trim();
+        const newCatIcon = editCategoryIcon.value.trim() || '📦';
         
-        if (!newName) {
-            showToast("Atenção", "O nome da categoria não pode estar vazio.", "warning");
+        if (!newCatName) {
+            showToast("Atenção", "O nome da categoria não pode ser vazio.", "warning");
             return;
         }
-        
-        // Fecha o modal
         editCategoryModalInstance.hide();
-        
-        // Edita a categoria
-        await editCategory(oldName, newName, newIcon);
+        await editCategoryInFirebase(catId, oldCatName, newCatName, newCatIcon);
     });
     
-    // Toggle opção de mover itens
-    deleteOptionMove.addEventListener('change', () => {
-        moveToCategory.classList.remove('d-none');
-    });
+    deleteOptionMove.addEventListener('change', () => moveToCategory.classList.toggle('d-none', !deleteOptionMove.checked));
+    deleteOptionRemove.addEventListener('change', () => moveToCategory.classList.add('d-none'));
     
-    deleteOptionRemove.addEventListener('change', () => {
-        moveToCategory.classList.add('d-none');
-    });
-    
-    // Confirmar exclusão de categoria
     confirmDeleteCategory.addEventListener('click', async () => {
-        const categoryName = deleteCategoryName.textContent;
-        const deleteOption = document.querySelector('input[name="deleteOption"]:checked').value;
-        let targetCategory = null;
+        const catId = deleteCategoryIdField.value;
+        const catName = deleteCategoryName.textContent;
+        const deleteOpt = document.querySelector('input[name="deleteOption"]:checked').value;
+        let targetCatName = null;
         
-        if (deleteOption === 'move') {
-            targetCategory = moveToSelect.value;
-            if (!targetCategory) {
-                showToast("Atenção", "Por favor, selecione uma categoria de destino.", "warning");
+        if (deleteOpt === 'move') {
+            targetCatName = moveToSelect.value;
+            if (!targetCatName) {
+                showToast("Atenção", "Selecione uma categoria de destino.", "warning");
                 return;
             }
         }
-        
-        // Fecha o modal
         deleteCategoryModalInstance.hide();
-        
-        // Exclui a categoria
-        await deleteCategory(categoryName, deleteOption, targetCategory);
+        await deleteCategoryFromFirebase(catId, catName, deleteOpt, targetCatName);
     });
-
-    // Botões de limpar removidos conforme solicitado pelo usuário
     
-    // Filtros
     filterButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            updateFilter(button.dataset.filter);
-        });
+        button.addEventListener('click', () => updateFilter(button.dataset.filter));
     });
     
-    // Busca
-    searchInput.addEventListener('input', (e) => {
-        updateSearch(e.target.value.trim());
-    });
+    searchInput.addEventListener('input', (e) => updateSearch(e.target.value.trim()));
+    searchInputMobile.addEventListener('input', (e) => updateSearch(e.target.value.trim()));
     
-    searchInputMobile.addEventListener('input', (e) => {
-        updateSearch(e.target.value.trim());
-    });
-    
-    // Atalhos de teclado removidos conforme solicitado pelo usuário
-
     // --- Inicialização ---
-    // A sincronização com o Firebase é iniciada automaticamente pela função itemsRef.on('value', ...)
-    // que é configurada no início deste script.
-    // Não precisamos chamar uma função de 'carregar' explicitamente aqui.
-
-    // Inicializa as categorias localmente (se não estiverem no Firebase)
-    categories = [
-         { name: 'Frutas', icon: '🍎' },
-         { name: 'Verduras', icon: '🥦' },
-         { name: 'Laticínios', icon: '🥛' },
-         { name: 'Carnes', icon: '🍖' },
-         { name: 'Bebidas', icon: '🍹' }
-         // Adicione mais categorias iniciais aqui se desejar
-     ];
-    renderCategorySelect(); // Renderiza o select de categorias
-    renderCategoryManagement(); // Renderiza a lista de gerenciamento de categorias
-    // renderList() é chamado pela função de sincronização do Firebase quando os dados são carregados inicialmente e em cada mudança.
-
+    // Os listeners do Firebase ('categoriesRef.on' e 'itemsRef.on') já cuidam do carregamento inicial.
+    // Renderizações iniciais são chamadas dentro desses listeners.
+    // Não são necessárias categorias iniciais fixas, pois virão do Firebase.
+    // Se o Firebase estiver vazio, as listas de categorias e itens começarão vazias.
 });
 
