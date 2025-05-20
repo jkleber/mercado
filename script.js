@@ -2,10 +2,11 @@
 // Certifique-se de que o Firebase SDK (firebase-app.js, firebase-database.js v8.x.x)
 // e suas configurações (firebaseConfig) estejam incluídos no seu arquivo index.html
 // em tags <script> ANTES deste script.
-// O index.html deve inicializar o app Firebase e criar as referências 'database', 'itemsRef' e 'categoriesRef'.
+// O index.html deve inicializar o app Firebase e criar as referências 'database', 'itemsRef', 'categoriesRef', e 'categoryOrderRef'.
 
 document.addEventListener('DOMContentLoaded', function () {
     // --- Referências aos Elementos HTML ---
+    // (sem alterações aqui)
     const fabAddItemButton = document.getElementById('fabAddItem');
     const addItemButton = document.getElementById('addItemButton');
     const addCategoryButton = document.getElementById('addCategoryButton');
@@ -24,8 +25,8 @@ document.addEventListener('DOMContentLoaded', function () {
     
     const editCategoryModal = document.getElementById('editCategoryModal');
     const editCategoryForm = document.getElementById('editCategoryForm');
-    const editCategoryId = document.getElementById('editCategoryId'); // Campo oculto para ID
-    const editCategoryOldName = document.getElementById('editCategoryOldName'); // Campo oculto para nome antigo
+    const editCategoryId = document.getElementById('editCategoryId'); 
+    const editCategoryOldName = document.getElementById('editCategoryOldName'); 
     const editCategoryName = document.getElementById('editCategoryName');
     const editCategoryIcon = document.getElementById('editCategoryIcon');
     const editEmojiPickerButton = document.getElementById('editEmojiPickerButton');
@@ -33,7 +34,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const saveCategoryChanges = document.getElementById('saveCategoryChanges');
     
     const deleteCategoryModal = document.getElementById('deleteCategoryModal');
-    const deleteCategoryIdField = document.getElementById('deleteCategoryIdField'); // Campo oculto para ID
+    const deleteCategoryIdField = document.getElementById('deleteCategoryIdField'); 
     const deleteCategoryName = document.getElementById('deleteCategoryName');
     const deleteOptionRemove = document.getElementById('deleteOptionRemove');
     const deleteOptionMove = document.getElementById('deleteOptionMove');
@@ -45,59 +46,93 @@ document.addEventListener('DOMContentLoaded', function () {
     const deleteCategoryModalInstance = new bootstrap.Modal(deleteCategoryModal);
 
     // --- Estado da Aplicação ---
-    let categories = []; // Agora será preenchido pelo Firebase
-    let items = []; // Preenchido pelo Firebase
+    let categories = []; // Array de categorias ORDENADAS para a UI
+    let items = []; 
     let currentFilter = 'all';
     let searchTerm = '';
     let sortableInstance = null;
 
+    // NOVAS variáveis para gerenciar dados brutos e ordem
+    let localRawCategories = []; // Dados das categorias como vêm do Firebase
+    let localCategoryOrderFromFirebase = []; // Array de IDs na ordem salva
+
     const emojis = ['🍎', '🥦', '🥛', '🍖', '🍹', '🍞', '🍗', '🍇', '🍉', '🍌', '🍒', '🥕', '🥩', '🍤', '🍰', '🍪', '🍕', '🌽', '🍅', '🥥', '🛒', '🛍️', '📋', '📍', '🧀', '🥚', '🥓', '🥖', '🥐', '🧈', '🧂', '🥫', '🥔', '🍠', '🍯', '🥜', '🫘', '🍝', '🥞', '🧊', '🧃', '🧴', '🧻', '🧼', '🧹', '🧺', '🪣', '🧷', '🪒', '🪥', '🧸', '📱', '💻', '🔋', '💡', '🧾'];
 
     // --- Inicialização e Conexão com Firebase ---
-    if (typeof firebase === 'undefined' || typeof database === 'undefined' || typeof itemsRef === 'undefined' || typeof categoriesRef === 'undefined') {
+    // Adicionada verificação para categoryOrderRef
+    if (typeof firebase === 'undefined' || typeof database === 'undefined' || typeof itemsRef === 'undefined' || typeof categoriesRef === 'undefined' || typeof categoryOrderRef === 'undefined') {
         console.error("Firebase SDK ou referências de banco de dados não carregadas corretamente no index.html.");
         showToast("Erro", "Erro na configuração do Firebase. Verifique o arquivo index.html.", "danger");
         return;
     }
 
+    // --- Função Central para Processar e Renderizar a UI ---
+    function processAndRenderUI() {
+        // Ordena as categorias
+        let orderedCategoriesForUI = [];
+        if (localRawCategories.length > 0) {
+            if (localCategoryOrderFromFirebase.length > 0) {
+                localCategoryOrderFromFirebase.forEach(catId => {
+                    const category = localRawCategories.find(c => c.id === catId);
+                    if (category) {
+                        orderedCategoriesForUI.push(category);
+                    }
+                });
+                // Adiciona categorias que estão em localRawCategories mas não na ordem salva (novas categorias)
+                localRawCategories.forEach(cat => {
+                    if (!orderedCategoriesForUI.find(oc => oc.id === cat.id)) {
+                        orderedCategoriesForUI.push(cat); // Adiciona no final
+                    }
+                });
+            } else {
+                // Se não há ordem definida, usa a ordem de chegada de localRawCategories
+                orderedCategoriesForUI = [...localRawCategories];
+            }
+        }
+        
+        categories = orderedCategoriesForUI; // Atualiza o array 'categories' global que as funções de render usam
+
+        // Chama as funções de renderização
+        renderCategorySelect();
+        renderCategoryManagement(); // Esta renderiza com base no array 'categories' já ordenado
+        renderList(); // Itens também dependem dos ícones e nomes das categorias ordenadas
+        renderMoveToSelect(); // Atualiza o select no modal de exclusão
+    }
+
+
     // --- Sincronização em Tempo Real com Firebase ---
 
-    // Ouve mudanças nas categorias
+    // Listener para a ORDEM das categorias
+    categoryOrderRef.on('value', (snapshot) => {
+        const orderData = snapshot.val();
+        localCategoryOrderFromFirebase = Array.isArray(orderData) ? orderData : [];
+        console.log('Ordem das categorias do Firebase recebida:', localCategoryOrderFromFirebase);
+        processAndRenderUI(); // Processa e renderiza com a nova ordem
+    }, (error) => {
+        console.error("Erro ao sincronizar ordem das categorias com Firebase:", error);
+        showToast("Erro", "Erro ao carregar ordem das categorias.", "danger");
+    });
+
+    // Listener para os DADOS das categorias
     categoriesRef.on('value', (snapshot) => {
         const data = snapshot.val();
-        categories = [];
+        localRawCategories = []; // Limpa para recarregar
         if (data) {
             Object.keys(data).forEach(key => {
-                categories.push({
+                localRawCategories.push({
                     id: key,
                     ...data[key] // name, icon
                 });
             });
         }
-        // Manter a ordem local se já houver uma definida pelo sortable
-        // Esta é uma simplificação. Para persistência de ordem real, um campo 'orderIndex' seria necessário.
-        // Por ora, a reordenação manual via SortableJS afetará a 'categories' array local.
-        // Se categories foi reordenado localmente, tentamos manter essa ordem.
-        const localOrder = categories.map(c => c.id);
-        categories.sort((a, b) => {
-            const indexA = localOrder.indexOf(a.id);
-            const indexB = localOrder.indexOf(b.id);
-            if (indexA !== -1 && indexB !== -1) {
-                return indexA - indexB;
-            }
-            return 0; // ou outra lógica de ordenação padrão
-        });
-
-        console.log('Categorias do Firebase recebidas:', categories);
-        renderCategorySelect();
-        renderCategoryManagement();
-        renderList(); // Re-renderiza a lista de itens pois os ícones das categorias podem ter mudado
+        console.log('Categorias do Firebase recebidas (dados brutos):', localRawCategories);
+        processAndRenderUI(); // Processa e renderiza com os novos dados de categoria
     }, (error) => {
         console.error("Erro ao sincronizar categorias com Firebase:", error);
         showToast("Erro", "Erro ao carregar categorias.", "danger");
     });
 
-    // Ouve mudanças nos itens
+    // Listener para os ITENS (sem alteração na lógica de ordenação de categorias aqui)
     itemsRef.on('value', (snapshot) => {
         const data = snapshot.val();
         items = [];
@@ -110,7 +145,13 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         }
         console.log('Itens do Firebase recebidos:', items);
-        renderList();
+        // A lista de itens será renderizada por processAndRenderUI se as categorias mudarem,
+        // ou podemos chamar renderList() diretamente se apenas os itens mudarem e a ordem das categorias não.
+        // Para simplificar, processAndRenderUI já chama renderList.
+        // Se houver muitas atualizações de itens, pode ser otimizado para chamar renderList() aqui.
+        // No entanto, renderList também é chamado por processAndRenderUI, que é acionado por mudanças de categoria/ordem.
+        // Se apenas um item mudar, e não uma categoria, precisamos garantir que a lista de itens seja atualizada.
+        renderList(); // Chamada direta para garantir atualização da lista de itens
         renderCategoryManagement(); // Atualiza contadores de itens por categoria
     }, (error) => {
         console.error("Erro ao sincronizar itens com Firebase:", error);
@@ -119,6 +160,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
     // --- Funções de Interação com Firebase (Itens) ---
+    // (sem alterações aqui)
     async function addItemToFirebase(itemData) {
         try {
             const newItemRef = await itemsRef.push(itemData);
@@ -212,15 +254,17 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // --- Funções de Gerenciamento de Categorias (Firebase) ---
+    // (sem alterações na lógica interna de add, edit, delete, exceto que a UI será atualizada por processAndRenderUI)
 
     async function addCategoryToFirebase(name, icon = '📦') {
-        if (categories.some(cat => cat.name === name)) {
+        if (localRawCategories.some(cat => cat.name === name)) { // Verifica em localRawCategories
             showToast("Atenção", `A categoria "${name}" já existe.`, "warning");
             return false;
         }
         try {
             await categoriesRef.push({ name, icon });
             showToast("Sucesso", `Categoria "${name}" adicionada.`, "success");
+            // A UI será atualizada pelo listener de categoriesRef chamando processAndRenderUI
             return true;
         } catch (error) {
             console.error("Erro ao adicionar categoria ao Firebase:", error);
@@ -230,23 +274,16 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     async function editCategoryInFirebase(categoryId, oldName, newName, newIcon) {
-        // Verifica se o novo nome já existe em outra categoria
-        if (oldName !== newName && categories.some(cat => cat.id !== categoryId && cat.name === newName)) {
+        if (oldName !== newName && localRawCategories.some(cat => cat.id !== categoryId && cat.name === newName)) {
             showToast("Erro", `A categoria "${newName}" já existe.`, "warning");
             return;
         }
-        
         try {
-            // Se o nome da categoria mudou, atualiza os itens primeiro
             if (oldName !== newName) {
                 await updateItemsCategory(oldName, newName);
             }
-            
-            // Atualiza a categoria no Firebase
             await categoriesRef.child(categoryId).update({ name: newName, icon: newIcon });
-            
             showToast("Sucesso", `Categoria "${oldName}" editada para "${newName}".`, "success");
-            // UI será atualizada pelo listener categoriesRef.on('value')
         } catch (error) {
             console.error("Erro ao editar categoria:", error);
             showToast("Erro", "Erro ao editar categoria.", "danger");
@@ -262,37 +299,43 @@ document.addEventListener('DOMContentLoaded', function () {
             }
             
             await categoriesRef.child(categoryId).remove();
+
+            // Remove a categoria da ordem salva, se existir
+            const updatedOrder = localCategoryOrderFromFirebase.filter(id => id !== categoryId);
+            if (updatedOrder.length !== localCategoryOrderFromFirebase.length) {
+                await categoryOrderRef.set(updatedOrder);
+            }
+
             showToast("Sucesso", `Categoria "${categoryName}" removida.`, "success");
-            // UI será atualizada pelos listeners
         } catch (error) {
             console.error("Erro ao excluir categoria:", error);
             showToast("Erro", "Erro ao excluir categoria.", "danger");
         }
     }
     
-    function reorderCategories(orderedCategoryIds) {
-        const reordered = [];
-        orderedCategoryIds.forEach(id => {
-            const category = categories.find(cat => cat.id === id);
-            if (category) {
-                reordered.push(category);
-            }
-        });
-        // Adiciona quaisquer categorias que não estavam na lista ordenada (novas categorias, por exemplo)
-        categories.forEach(cat => {
-            if (!reordered.find(rcat => rcat.id === cat.id)) {
-                reordered.push(cat);
-            }
-        });
-        categories = reordered;
-        
-        // Re-renderiza as partes da UI que dependem da ordem das categorias
-        renderCategorySelect();
-        renderList();
-        // Note: renderCategoryManagement() é chamado separadamente e renderiza na ordem atual de 'categories'
+    // NOVA função para atualizar a ordem e persistir
+    async function updateCategoryOrderAndPersist(orderedCategoryIds) {
+        localCategoryOrderFromFirebase = orderedCategoryIds; // Atualiza a ordem local imediatamente
+
+        // Atualiza o array 'categories' global com a nova ordem para feedback visual
+        // e re-renderiza as UIs relevantes.
+        processAndRenderUI(); 
+
+        try {
+            // Salva a nova ordem no Firebase
+            await categoryOrderRef.set(orderedCategoryIds);
+            console.log("Ordem das categorias salva no Firebase.");
+        } catch (error) {
+            console.error("Erro ao salvar ordem das categorias no Firebase:", error);
+            showToast("Erro", "Não foi possível salvar a nova ordem das categorias.", "danger");
+            // Opcional: Recarregar a ordem do Firebase para reverter a UI ao estado salvo.
+            // categoryOrderRef.once('value').then(snapshot => { ... }); // Para evitar loop com 'on'
+        }
     }
 
+
     // --- Funções de Filtragem e Busca ---
+    // (sem alterações aqui)
     function getFilteredItems() {
         let filtered = [...items];
         if (currentFilter === 'pending') {
@@ -304,7 +347,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const term = searchTerm.toLowerCase();
             filtered = filtered.filter(item => 
                 item.Nome.toLowerCase().includes(term) || 
-                item.Categoria.toLowerCase().includes(term)
+                (item.Categoria && item.Categoria.toLowerCase().includes(term)) // Adicionado check para item.Categoria
             );
         }
         return filtered;
@@ -320,37 +363,40 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function updateSearch(term) {
         searchTerm = term;
-        searchInput.value = term;
-        searchInputMobile.value = term;
+        if (searchInput.value !== term) searchInput.value = term; // Sincroniza
+        if (searchInputMobile.value !== term) searchInputMobile.value = term; // Sincroniza
         renderList();
     }
 
     // --- Funções de Renderização da UI ---
+    // Estas funções agora usam o array `categories` que é mantido ordenado por `processAndRenderUI`
+
     function renderCategorySelect() {
         const currentCategoryValue = categorySelect.value;
         categorySelect.innerHTML = '<option value="" disabled>Selecione a categoria</option>';
+        // 'categories' já está ordenado por processAndRenderUI
         categories.forEach(category => {
             const option = document.createElement('option');
-            option.value = category.name; // O valor continua sendo o nome da categoria para compatibilidade com item.Categoria
+            option.value = category.name; 
             option.textContent = `${category.icon} ${category.name}`;
             categorySelect.appendChild(option);
         });
-        // Tenta restaurar a seleção anterior se ainda válida
         if (categories.some(c => c.name === currentCategoryValue)) {
             categorySelect.value = currentCategoryValue;
         } else {
-             categorySelect.selectedIndex = 0; // Seleciona "Selecione a categoria"
+             categorySelect.selectedIndex = 0; 
         }
-        renderMoveToSelect();
+        // renderMoveToSelect() é chamado por processAndRenderUI
     }
     
     function renderMoveToSelect(excludeCategoryName = '') {
         moveToSelect.innerHTML = '';
+        // 'categories' já está ordenado
         categories
             .filter(category => category.name !== excludeCategoryName)
             .forEach(category => {
                 const option = document.createElement('option');
-                option.value = category.name; // O valor é o nome da categoria
+                option.value = category.name; 
                 option.textContent = `${category.icon} ${category.name}`;
                 moveToSelect.appendChild(option);
             });
@@ -358,6 +404,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function renderCategoryManagement() {
         categoryManagementList.innerHTML = '';
+        // 'categories' já está ordenado
         if (categories.length === 0) {
             categoryManagementList.innerHTML = '<p class="text-muted">Nenhuma categoria cadastrada.</p>';
             return;
@@ -365,11 +412,10 @@ document.addEventListener('DOMContentLoaded', function () {
         
         categories.forEach(category => {
             const itemCount = items.filter(item => item.Categoria === category.name).length;
-            
             const categoryItem = document.createElement('div');
             categoryItem.className = 'category-item';
-            categoryItem.dataset.id = category.id; // Usar ID do Firebase
-            categoryItem.dataset.name = category.name; // Guardar nome para reordenação
+            categoryItem.dataset.id = category.id; 
+            categoryItem.dataset.name = category.name; 
             
             const dragHandle = document.createElement('span');
             dragHandle.className = 'drag-handle';
@@ -400,9 +446,9 @@ document.addEventListener('DOMContentLoaded', function () {
             editButton.title = 'Editar categoria';
             editButton.setAttribute('aria-label', `Editar categoria ${category.name}`);
             editButton.addEventListener('click', () => {
-                editCategoryId.value = category.id; // ID da categoria
-                editCategoryOldName.value = category.name; // Nome antigo
-                editCategoryName.value = category.name;   // Nome atual para edição
+                editCategoryId.value = category.id; 
+                editCategoryOldName.value = category.name; 
+                editCategoryName.value = category.name;   
                 editCategoryIcon.value = category.icon;
                 editEmojiPicker.classList.add('d-none');
                 editCategoryModalInstance.show();
@@ -414,9 +460,9 @@ document.addEventListener('DOMContentLoaded', function () {
             deleteButton.title = 'Excluir categoria';
             deleteButton.setAttribute('aria-label', `Excluir categoria ${category.name}`);
             deleteButton.addEventListener('click', () => {
-                deleteCategoryIdField.value = category.id; // ID da categoria
-                deleteCategoryName.textContent = category.name; // Nome para exibição
-                renderMoveToSelect(category.name);
+                deleteCategoryIdField.value = category.id; 
+                deleteCategoryName.textContent = category.name; 
+                renderMoveToSelect(category.name); // Manter esta chamada específica aqui para excluir a categoria atual do select
                 moveToCategory.classList.add('d-none');
                 deleteOptionRemove.checked = true;
                 deleteCategoryModalInstance.show();
@@ -437,10 +483,11 @@ document.addEventListener('DOMContentLoaded', function () {
             animation: 150,
             handle: '.drag-handle',
             ghostClass: 'dragging',
-            onEnd: function(evt) {
+            // Modificado para chamar a nova função async
+            onEnd: async function(evt) { 
                 const orderedCategoryIds = Array.from(categoryManagementList.children)
-                    .map(item => item.dataset.id); // Reordenar por ID
-                reorderCategories(orderedCategoryIds);
+                    .map(item => item.dataset.id); 
+                await updateCategoryOrderAndPersist(orderedCategoryIds); // Chama a nova função
             }
         });
     }
@@ -492,8 +539,10 @@ document.addEventListener('DOMContentLoaded', function () {
     function renderList() {
         shoppingList.innerHTML = '';
         const filteredItems = getFilteredItems();
+        // 'categories' já está ordenado por processAndRenderUI
         
         if (filteredItems.length === 0) {
+            // (código da mensagem de lista vazia - sem alterações)
             const emptyMessage = document.createElement('div');
             emptyMessage.className = 'text-center p-4 text-muted';
             if (searchTerm) {
@@ -515,10 +564,10 @@ document.addEventListener('DOMContentLoaded', function () {
             grouped[item.Categoria].push(item);
         });
 
-        // Usar a ordem da 'categories' array (que é sincronizada com Firebase e pode ser reordenada localmente)
-        categories.forEach(category => {
+        categories.forEach(category => { // Usa o array 'categories' ordenado
             const categoryName = category.name;
             if (grouped[categoryName]) {
+                // (Restante da lógica de renderList para cabeçalhos e itens - sem alterações)
                 const icon = category.icon || '📦';
                 const itemCount = grouped[categoryName].length;
 
@@ -559,7 +608,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     checkbox.setAttribute('aria-label', `Marcar ${item.Nome} como ${item.Comprado ? 'não comprado' : 'comprado'}`);
                     checkbox.addEventListener('change', async () => {
                         const newBoughtStatus = checkbox.checked;
-                        item.Comprado = newBoughtStatus; // Otimista
+                        item.Comprado = newBoughtStatus; 
                         li.classList.toggle('bought', newBoughtStatus);
                         li.setAttribute('aria-checked', newBoughtStatus ? 'true' : 'false');
                         await updateItemInFirebase(item.id, { Comprado: newBoughtStatus });
@@ -600,7 +649,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     li.addEventListener('click', async (e) => {
                         if (e.target === removeBtn || e.target === checkbox || removeBtn.contains(e.target)) return;
                         const newBoughtStatus = !checkbox.checked;
-                        item.Comprado = newBoughtStatus; // Otimista
+                        item.Comprado = newBoughtStatus; 
                         checkbox.checked = newBoughtStatus;
                         li.classList.toggle('bought', newBoughtStatus);
                         li.setAttribute('aria-checked', newBoughtStatus ? 'true' : 'false');
@@ -628,17 +677,15 @@ document.addEventListener('DOMContentLoaded', function () {
                 });
             }
         });
-         // Adiciona categorias que possam existir nos itens mas não foram renderizadas (caso raro ou de inconsistência)
         Object.keys(grouped).forEach(categoryName => {
             if (!categories.find(c => c.name === categoryName)) {
-                 // Lógica para renderizar itens de categorias "órfãs", se necessário
-                 // Por ora, focamos nas categorias gerenciadas
-                console.warn(`Itens encontrados para categoria não gerenciada: ${categoryName}`);
+                console.warn(`Itens encontrados para categoria não gerenciada ou não na ordem: ${categoryName}`);
             }
         });
     }
     
     function initSwipeGestures(element) {
+        // (sem alterações aqui)
         let touchStartX = 0, touchEndX = 0, isSwiping = false;
         const itemId = element.dataset.id;
         
@@ -646,44 +693,53 @@ document.addEventListener('DOMContentLoaded', function () {
         element.addEventListener('touchmove', (e) => {
             touchEndX = e.changedTouches[0].screenX;
             const diffX = touchStartX - touchEndX;
-            if (Math.abs(diffX) > 30 && !isSwiping) { // Começa a considerar swipe
+            if (Math.abs(diffX) > 30 && !isSwiping) { 
                  isSwiping = true;
-                 if (diffX > 0) { // Swipe para esquerda
+                 if (diffX > 0) { 
                      element.classList.add('swiped');
-                 } else { // Swipe para direita
+                 } else { 
                      element.classList.remove('swiped');
                  }
             }
         }, { passive: true });
 
         element.addEventListener('touchend', (e) => {
-            if (!isSwiping) return; // Se não foi um swipe real, não faz nada
+            if (!isSwiping && Math.abs(touchStartX - e.changedTouches[0].screenX) < 10) { // Verifica se não foi swipe e se foi um toque leve
+                // Lógica de clique normal (já tratada pelo listener de 'click' do li)
+                element.classList.remove('swiped'); // Garante que não fique swiped em um clique
+                return;
+            }
+            if (!isSwiping) return; 
+
             touchEndX = e.changedTouches[0].screenX;
             const diffX = touchStartX - touchEndX;
             
-            if (diffX > 100) { // Swipe significativo para esquerda, mantém ações visíveis
+            if (diffX > 100) { 
                 element.classList.add('swiped');
-                // Ações são adicionadas uma vez para evitar múltiplos listeners
                 const checkAction = element.querySelector('.swipe-action-check');
                 const deleteAction = element.querySelector('.swipe-action-delete');
                 
                 const item = items.find(i => i.id === itemId);
                 if (item) {
-                    checkAction.onclick = async () => { // Usar .onclick para sobrescrever
+                    const handleCheckAction = async () => {
                         await updateItemInFirebase(itemId, { Comprado: !item.Comprado });
                         element.classList.remove('swiped');
+                        checkAction.removeEventListener('click', handleCheckAction); // Previne múltiplos listeners
+                        deleteAction.removeEventListener('click', handleDeleteAction);
                     };
-                    deleteAction.onclick = async () => { // Usar .onclick para sobrescrever
+                    const handleDeleteAction = async () => {
                         await removeItemFromFirebase(itemId);
-                        // O item será removido da lista pela atualização do Firebase
+                        // O item será removido da lista pela atualização do Firebase, o 'swiped' será removido se o elemento sumir.
+                        // element.classList.remove('swiped'); // Pode não ser necessário se o elemento for removido
+                        checkAction.removeEventListener('click', handleCheckAction);
+                        deleteAction.removeEventListener('click', handleDeleteAction);
                     };
+
+                    checkAction.addEventListener('click', handleCheckAction, { once: true }); // {once: true} é uma boa prática aqui
+                    deleteAction.addEventListener('click', handleDeleteAction, { once: true });
                 }
-            } else if (diffX < -50) { // Swipe para direita, esconde ações
+            } else if (diffX < -50 || (isSwiping && Math.abs(diffX) <=100)) { // Swipe para direita ou swipe curto
                 element.classList.remove('swiped');
-            } else if (isSwiping && Math.abs(diffX) <= 100 && diffX > 0 ) {
-                // Se foi um swipe curto para a esquerda, não mantém aberto, mas também não executa ação de clique
-                // Pode ser necessário ajustar essa lógica se o clique for disparado indevidamente
-                // element.classList.remove('swiped'); // Opcional: resetar se o swipe não foi "forte" o suficiente
             }
             isSwiping = false;
             touchStartX = 0;
@@ -692,9 +748,10 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function showToast(title, message, type = 'info') {
+        // (sem alterações aqui)
         const toastContainer = document.querySelector('.toast-container');
         const toast = document.createElement('div');
-        toast.className = `toast`; // Removido 'show' para animação Bootstrap
+        toast.className = `toast`; 
         toast.setAttribute('role', 'alert');
         toast.setAttribute('aria-live', 'assertive');
         toast.setAttribute('aria-atomic', 'true');
@@ -727,6 +784,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // --- Event Listeners ---
+    // (sem alterações aqui, exceto que as renderizações são agora coordenadas por processAndRenderUI)
     document.getElementById('addItemForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         const itemName = itemInput.value.trim();
@@ -738,7 +796,6 @@ document.addEventListener('DOMContentLoaded', function () {
             await addItemToFirebase(itemData);
             itemInput.value = '';
             itemQuantityInput.value = '1';
-            // categorySelect.selectedIndex = 0; // Não reseta para permitir adicionar vários itens na mesma categoria
             if (window.innerWidth < 768) {
                 const offcanvasInstance = bootstrap.Offcanvas.getInstance(document.getElementById('offcanvasMenu'));
                 if (offcanvasInstance) offcanvasInstance.hide();
@@ -816,9 +873,6 @@ document.addEventListener('DOMContentLoaded', function () {
     searchInputMobile.addEventListener('input', (e) => updateSearch(e.target.value.trim()));
     
     // --- Inicialização ---
-    // Os listeners do Firebase ('categoriesRef.on' e 'itemsRef.on') já cuidam do carregamento inicial.
-    // Renderizações iniciais são chamadas dentro desses listeners.
-    // Não são necessárias categorias iniciais fixas, pois virão do Firebase.
-    // Se o Firebase estiver vazio, as listas de categorias e itens começarão vazias.
+    // Os listeners do Firebase ('categoryOrderRef.on', 'categoriesRef.on', 'itemsRef.on') 
+    // cuidam do carregamento inicial e chamam processAndRenderUI() ou renderList() conforme necessário.
 });
-
