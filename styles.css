@@ -4,13 +4,13 @@
 :root {
     --primary-color: #4a90e2;
     --primary-gradient: linear-gradient(45deg, #4a90e2, #357ABD);
-    --secondary-color: #50e3c2; /* Ainda pode ser usado para outros elementos se desejar */
+    /* --secondary-color: #50e3c2; */ /* Cor não mais usada para o FAB ativo */
     --background-color: #f5f7fa;
     --text-color: #333;
     --shadow-color: rgba(0, 0, 0, 0.15);
     --danger-color: #dc3545;
     --warning-color: #ffc107;
-    --success-color: #28a745;
+    --success-color: #198754; /* Cor padrão do Bootstrap para success */
     --edit-color: #007bff; 
     --delete-color: #dc3545;
     --border-radius: 12px;
@@ -30,8 +30,10 @@ body {
 
 .container {
     max-width: 600px;
-    margin: 0 auto;
-    padding: 1rem;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 1rem;
+    padding-right: 1rem;
 }
 
 /* Navbar */
@@ -79,60 +81,70 @@ body {
 
 /* Offcanvas */
 .offcanvas {
-    background: white;
+    background: #f0f3f5; 
     border-radius: var(--border-radius);
     box-shadow: 0 8px 24px var(--shadow-color);
-    padding: 1rem;
+    padding: 1rem; 
     width: 85% !important; 
 }
 
 .offcanvas-header {
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid #d1d9e0; 
     margin-bottom: 1rem;
+    padding-bottom: 0.75rem; 
 }
 
 .offcanvas-title {
-    font-weight: 700;
+    font-weight: 600; 
     color: var(--primary-color);
+    font-size: 1.25rem; 
 }
 
-.offcanvas-body form { 
-    background: #f8f9fa;
+.offcanvas-body > form, 
+.offcanvas-body > div[id="categoryManagement"],
+.offcanvas-body > .download-section { /* Aplicando estilo à nova seção */
+    background: #ffffff; 
+    border: 1px solid #dee2e6; 
     border-radius: var(--border-radius);
-    padding: 1rem;
-    margin-bottom: 1rem;
-    box-shadow: 0 2px 8px var(--shadow-color);
+    padding: 1.25rem; 
+    margin-bottom: 1.5rem; 
+    box-shadow: 0 2px 5px rgba(0,0,0,0.08); 
 }
 
-.offcanvas-body form h6 {
-    font-weight: 700;
-    margin-bottom: 1rem;
+.offcanvas-body > form:last-child,
+.offcanvas-body > div[id="categoryManagement"]:last-child,
+.offcanvas-body > .download-section:last-child { /* Ajuste para o último elemento */
+    margin-bottom: 0.5rem; 
+}
+
+
+.offcanvas-body h6 { 
+    font-weight: 600;
+    margin-bottom: 0.75rem; 
     color: var(--primary-color);
-}
-
-.section-divider {
-    height: 1px;
-    background: #ddd;
-    margin: 1.5rem 0;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #e9ecef; 
+    font-size: 1.1rem;
 }
 
 /* Form elements */
 .form-control, .form-select {
     border-radius: var(--border-radius);
-    border: 1px solid #ddd;
-    padding: 0.75rem 1rem;
-    transition: all var(--transition-speed);
+    border: 1px solid #ced4da; 
+    padding: 0.5rem 1rem; 
+    transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
 }
 
 .form-control:focus, .form-select:focus {
     border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.25);
+    box-shadow: 0 0 0 0.2rem rgba(74, 144, 226, 0.25); 
 }
 
 .form-label {
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-    color: #555;
+    font-weight: 500; 
+    margin-bottom: 0.3rem; 
+    color: #495057; 
+    font-size: 0.9rem;
 }
 
 .offcanvas-body .input-group .form-control {
@@ -150,8 +162,8 @@ body {
 /* Buttons */
 .btn {
     border-radius: var(--border-radius);
-    padding: 0.75rem 1.5rem;
-    font-weight: 600;
+    padding: 0.6rem 1.2rem; 
+    font-weight: 500; 
     transition: all var(--transition-speed);
 }
 
@@ -162,8 +174,8 @@ body {
 
 .btn-primary:hover {
     background: linear-gradient(45deg, #357ABD, #2868A0);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(74, 144, 226, 0.3);
+    transform: translateY(-1px); 
+    box-shadow: 0 2px 8px rgba(74, 144, 226, 0.25);
 }
 
 .btn-primary:active {
@@ -178,7 +190,7 @@ body {
     width: 60px;
     height: 60px;
     border-radius: 50%;
-    background: var(--primary-gradient); /* Cor de fundo PADRÃO E CONSTANTE */
+    background: var(--primary-gradient); 
     color: white;
     font-size: 1.5rem; 
     display: flex;
@@ -187,37 +199,25 @@ body {
     box-shadow: 0 8px 20px var(--shadow-color);
     cursor: pointer;
     z-index: 1100;
-    /* Apenas transição para transform e box-shadow, não mais background-color */
     transition: transform var(--transition-speed), box-shadow var(--transition-speed); 
     border: none; 
 }
 
-/* Hover no FAB (sem mudança de cor de fundo) */
 #fabAddItem:hover {
-    transform: scale(1.1); /* Feedback de hover com scale */
-    box-shadow: 0 12px 30px var(--shadow-color);
+    transform: scale(1.08); 
+    box-shadow: 0 10px 25px var(--shadow-color); 
 }
 
 #fabAddItem:active { 
-    transform: scale(0.95); /* Feedback de clique */
+    transform: scale(0.96); 
 }
-
-/* A classe .fab-active não é mais usada para mudar a cor de fundo, então essas regras são removidas ou comentadas */
-/*
-#fabAddItem.fab-active { 
-    background: var(--secondary-color); 
-}
-#fabAddItem.fab-active:hover {
-    transform: scale(1.05); 
-}
-*/
 
 /* Filter controls */
 .filter-controls {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 1rem;
+    margin-bottom: 1rem; 
     padding: 0.5rem 1rem;
     background: white;
     border-radius: var(--border-radius);
@@ -319,7 +319,6 @@ body {
     align-items: center;
     flex-grow: 1; 
     margin-right: 0.5rem; 
-    cursor: pointer; 
 }
 
 .item-name {
@@ -453,25 +452,27 @@ body {
     background-color: #e9ecef; 
 }
 
-/* Modal para edição de categoria */
-.modal-content {
-    border-radius: var(--border-radius);
-    box-shadow: 0 8px 24px var(--shadow-color);
-}
-
+/* Estilos para Modais */
 .modal-header {
     background: var(--primary-gradient);
     color: white;
-    border-top-left-radius: var(--border-radius);
-    border-top-right-radius: var(--border-radius);
+    border-bottom: none; 
 }
-
-.modal-title {
-    font-weight: 700;
+.modal-header .btn-close {
+    filter: brightness(0) invert(1); 
 }
-
+.modal-content {
+    border-radius: var(--border-radius);
+    border: none; 
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2); 
+}
+.modal-body p { 
+    margin-bottom: 0.5rem; 
+    font-size: 1rem; 
+}
 .modal-footer {
-    border-top: 1px solid #ddd;
+    border-top: 1px solid #e9ecef; 
+    padding: 0.75rem 1rem; 
 }
 
 /* Toast notifications */
@@ -618,3 +619,4 @@ body {
     box-shadow: none;
 }
 
+/* Removido @media print pois a funcionalidade mudou para download PDF */

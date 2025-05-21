@@ -74,8 +74,6 @@
                 </button>
             </form>
 
-            <div class="section-divider"></div>
-
             <div id="categoryManagement" class="mb-4 p-3 bg-light rounded shadow-sm">
                 <h6>Gerenciar Categorias</h6>
                 <p class="text-muted small mb-2">Arraste para reordenar as categorias</p>
@@ -84,11 +82,18 @@
                 </div>
             </div>
 
-            <div class="section-divider"></div>
+            <!-- Funcionalidade de Download PDF -->
+            <div class="download-section mb-4 p-3 bg-light rounded shadow-sm">
+                <h6>Opções de Lista</h6>
+                <button type="button" id="downloadPdfButton" class="btn btn-success w-100"> 
+                    <i class="bi bi-file-earmark-arrow-down-fill me-2"></i>Baixar Lista (PDF)
+                </button>
+            </div>
+
         </div>
     </div>
 
-    <div class="container my-4">
+    <div class="container mt-0 mb-4"> 
         <div class="filter-controls mb-3">
             <div>
                 <span class="filter-label">Filtrar:</span>
@@ -106,13 +111,14 @@
     </div>
 
     <button id="fabAddItem" class="btn btn-gradient-fab" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasMenu" aria-controls="offcanvasMenu">
-        <i class="bi bi-plus-lg"></i> <!-- SUGESTÃO: Usar bi-plus-lg para o ícone inicial -->
+        <i class="bi bi-plus-lg"></i>
     </button>
 
     <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1200; margin-top: 70px;">
-        <!-- Toasts serão adicionados dinamicamente -->
+        <!-- Toasts -->
     </div>
 
+    <!-- Modal para Editar Categoria -->
     <div class="modal fade" id="editCategoryModal" tabindex="-1" aria-labelledby="editCategoryModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -146,6 +152,7 @@
         </div>
     </div>
 
+    <!-- Modal de Confirmação para Excluir Categoria -->
     <div class="modal fade" id="deleteCategoryModal" tabindex="-1" aria-labelledby="deleteCategoryModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -155,7 +162,7 @@
                 </div>
                 <div class="modal-body">
                     <input type="hidden" id="deleteCategoryIdField">
-                    <p>Tem certeza que deseja excluir a categoria "<span id="deleteCategoryName"></span>"?</p>
+                    <p>Tem certeza que deseja excluir a categoria "<span id="deleteCategoryName" class="fw-bold"></span>"?</p> 
                     <div class="mb-3">
                         <div class="form-check">
                             <input class="form-check-input" type="radio" name="deleteOption" id="deleteOptionRemove" value="remove" checked>
@@ -173,7 +180,6 @@
                     <div id="moveToCategory" class="d-none mb-3">
                         <label for="moveToSelect" class="form-label">Selecione a categoria de destino:</label>
                         <select id="moveToSelect" class="form-select">
-                            <!-- Opções serão preenchidas dinamicamente -->
                         </select>
                     </div>
                 </div>
@@ -185,8 +191,30 @@
         </div>
     </div>
 
+    <!-- Modal de Confirmação para Excluir Item -->
+    <div class="modal fade" id="deleteItemModal" tabindex="-1" aria-labelledby="deleteItemModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-sm"> 
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteItemModalLabel">Confirmar Exclusão</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Tem certeza que deseja excluir o item "<span id="deleteItemNameModal" class="fw-bold"></span>"?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-danger" id="confirmDeleteItemButton">Excluir</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    
+    <!-- INCLUIR jsPDF via CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
     <script>
       const firebaseConfig = {
@@ -212,4 +240,3 @@
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 </body>
 </html>
-

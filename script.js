@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', function () {
     
     const deleteCategoryModal = document.getElementById('deleteCategoryModal');
     const deleteCategoryIdField = document.getElementById('deleteCategoryIdField'); 
-    const deleteCategoryName = document.getElementById('deleteCategoryName');
+    const deleteCategoryNameSpan = document.getElementById('deleteCategoryName');
     const deleteOptionRemove = document.getElementById('deleteOptionRemove');
     const deleteOptionMove = document.getElementById('deleteOptionMove');
     const moveToCategory = document.getElementById('moveToCategory');
@@ -44,7 +44,13 @@ document.addEventListener('DOMContentLoaded', function () {
     const editCategoryModalInstance = new bootstrap.Modal(editCategoryModal);
     const deleteCategoryModalInstance = new bootstrap.Modal(deleteCategoryModal);
 
-    const fabIcon = fabAddItemButton.querySelector('i'); // Referência ao ícone do FAB
+    const deleteItemModalElement = document.getElementById('deleteItemModal');
+    const deleteItemNameModalSpan = document.getElementById('deleteItemNameModal');
+    const confirmDeleteItemButton = document.getElementById('confirmDeleteItemButton');
+    const deleteItemModalInstance = new bootstrap.Modal(deleteItemModalElement); 
+
+    const fabIcon = fabAddItemButton.querySelector('i');
+    const downloadPdfButton = document.getElementById('downloadPdfButton'); // Referência ao novo botão
 
     // --- Estado da Aplicação ---
     let categories = []; 
@@ -54,13 +60,16 @@ document.addEventListener('DOMContentLoaded', function () {
     let sortableInstance = null;
     let localRawCategories = []; 
     let localCategoryOrderFromFirebase = []; 
+    let itemToDeleteId = null; 
+    let itemToDeleteName = null; 
 
     const emojis = ['🍎', '🥦', '🥛', '🍖', '🍹', '🍞', '🍗', '🍇', '🍉', '🍌', '🍒', '🥕', '🥩', '🍤', '🍰', '🍪', '🍕', '🌽', '🍅', '🥥', '🛒', '🛍️', '📋', '📍', '🧀', '🥚', '🥓', '🥖', '🥐', '🧈', '🧂', '🥫', '🥔', '🍠', '🍯', '🥜', '🫘', '🍝', '🥞', '🧊', '🧃', '🧴', '🧻', '🧼', '🧹', '🧺', '🪣', '🧷', '🪒', '🪥', '🧸', '📱', '💻', '🔋', '💡', '🧾'];
 
-    if (typeof firebase === 'undefined' || typeof database === 'undefined' || typeof itemsRef === 'undefined' || typeof categoriesRef === 'undefined' || typeof categoryOrderRef === 'undefined') {
-        console.error("Firebase SDK ou referências não carregadas.");
-        showToast("Erro de Configuração", "Falha na conexão com o banco de dados.", "danger");
-        return;
+    if (typeof firebase === 'undefined' || typeof database === 'undefined' || typeof itemsRef === 'undefined' || typeof categoriesRef === 'undefined' || typeof categoryOrderRef === 'undefined' || typeof jspdf === 'undefined') {
+        console.error("Firebase SDK, jsPDF ou referências não carregadas.");
+        showToast("Erro de Configuração", "Falha ao carregar dependências. Verifique o console.", "danger");
+        if(downloadPdfButton) downloadPdfButton.disabled = true; // Desabilita o botão se jsPDF não carregou
+        // Não retorna aqui para permitir que o resto do app funcione se possível
     }
 
     function processAndRenderUI() {
@@ -115,10 +124,10 @@ document.addEventListener('DOMContentLoaded', function () {
          catch (error) { showToast("Erro", "Falha ao atualizar item.", "danger"); }
     }
 
-    async function removeItemFromFirebase(itemId, itemName) {
+    async function removeItemFromFirebase(itemId, itemName) { 
          try {
              await itemsRef.child(itemId).remove();
-             showToast("Sucesso", `"${itemName}" removido.`, "success");
+             showToast("Sucesso", `Item "${itemName}" removido.`, "success");
          } catch (error) { showToast("Erro", "Falha ao remover item.", "danger"); }
     }
     
@@ -322,7 +331,7 @@ document.addEventListener('DOMContentLoaded', function () {
             deleteButton.title = `Excluir ${category.name}`;
             deleteButton.addEventListener('click', () => {
                 deleteCategoryIdField.value = category.id; 
-                deleteCategoryName.textContent = category.name; 
+                deleteCategoryNameSpan.textContent = category.name; 
                 renderMoveToSelect(category.name); 
                 moveToCategory.classList.add('d-none');
                 deleteOptionRemove.checked = true;
@@ -430,40 +439,51 @@ document.addEventListener('DOMContentLoaded', function () {
                     listItem.className = 'list-group-item'; 
                     listItem.dataset.id = item.id;
                     if (item.Comprado) listItem.classList.add('bought');
+                    
                     const itemContentDiv = document.createElement('div');
-                    itemContentDiv.className = 'item-content';
+                    itemContentDiv.className = 'item-content'; 
+                    
                     const checkbox = document.createElement('input');
                     checkbox.type = 'checkbox';
                     checkbox.className = 'form-check-input'; 
                     checkbox.checked = item.Comprado;
                     checkbox.setAttribute('aria-label', `Marcar ${item.Nome}`);
+                    checkbox.addEventListener('change', async () => {
+                        await updateItemInFirebase(item.id, { Comprado: checkbox.checked });
+                    });
+                    
                     const itemNameSpan = document.createElement('span');
                     itemNameSpan.className = 'item-name';
                     itemNameSpan.textContent = item.Nome;
+                    
                     itemContentDiv.appendChild(checkbox);
                     itemContentDiv.appendChild(itemNameSpan);
+                    
                     const itemActionsDiv = document.createElement('div');
                     itemActionsDiv.className = 'item-actions';
+                    
                     const itemQuantitySpan = document.createElement('span');
                     itemQuantitySpan.className = 'item-quantity'; 
                     itemQuantitySpan.textContent = `Qtd: ${item.Quantidade}`;
                     itemActionsDiv.appendChild(itemQuantitySpan);
+                    
                     const deleteBtn = document.createElement('button');
                     deleteBtn.className = 'btn-delete'; 
                     deleteBtn.innerHTML = '<i class="bi bi-trash-fill"></i>';
                     deleteBtn.setAttribute('aria-label', `Remover ${item.Nome}`);
                     deleteBtn.title = `Remover ${item.Nome}`;
-                    deleteBtn.addEventListener('click', async (e) => {
+                    deleteBtn.addEventListener('click', (e) => { 
                         e.stopPropagation(); 
-                        if (confirm(`Tem certeza que deseja excluir "${item.Nome}"?`)) await removeItemFromFirebase(item.id, item.Nome);
+                        itemToDeleteId = item.id;       
+                        itemToDeleteName = item.Nome;   
+                        deleteItemNameModalSpan.textContent = item.Nome; 
+                        deleteItemModalInstance.show(); 
                     });
+                    
                     itemActionsDiv.appendChild(deleteBtn);
                     listItem.appendChild(itemContentDiv);
                     listItem.appendChild(itemActionsDiv);
-                    itemContentDiv.addEventListener('click', async () => {
-                        checkbox.checked = !checkbox.checked; 
-                        await updateItemInFirebase(item.id, { Comprado: checkbox.checked });
-                    });
+                    
                     shoppingList.appendChild(listItem);
                 });
             }
@@ -551,7 +571,7 @@ document.addEventListener('DOMContentLoaded', function () {
     
     confirmDeleteCategory.addEventListener('click', async () => { 
         const categoryIdVal = deleteCategoryIdField.value;
-        const categoryNameVal = deleteCategoryName.textContent;
+        const categoryNameVal = deleteCategoryNameSpan.textContent;
         const optionVal = deleteOptionMove.checked ? 'move' : 'remove';
         const targetCategoryVal = optionVal === 'move' ? moveToSelect.value : null;
         if (optionVal === 'move' && !targetCategoryVal) {
@@ -579,6 +599,130 @@ document.addEventListener('DOMContentLoaded', function () {
     
     newCategoryIconInput.readOnly = true;
     editCategoryIcon.readOnly = true;
+
+    confirmDeleteItemButton.addEventListener('click', async () => {
+        if (itemToDeleteId && itemToDeleteName) {
+            await removeItemFromFirebase(itemToDeleteId, itemToDeleteName);
+        }
+        itemToDeleteId = null; 
+        itemToDeleteName = null;
+        deleteItemModalInstance.hide();
+    });
+    
+    // Listener para o botão de baixar PDF
+    if (downloadPdfButton) {
+        downloadPdfButton.addEventListener('click', function() {
+            if (typeof jspdf === 'undefined') {
+                showToast("Erro", "Biblioteca PDF não carregada. Tente recarregar a página.", "danger");
+                return;
+            }
+            generateAndDownloadPDF();
+            bsOffcanvas.hide(); 
+        });
+    }
+
+    // Função para gerar e baixar o PDF
+    async function generateAndDownloadPDF() {
+        const { jsPDF } = window.jspdf; 
+        const doc = new jsPDF({
+            orientation: 'p', // portrait
+            unit: 'mm',       // millimeters
+            format: 'a4'      // A4 size
+        });
+
+        const itemsToExport = getFilteredItems();
+
+        if (itemsToExport.length === 0) {
+            showToast("Informação", "Não há itens na lista para gerar o PDF.", "info");
+            return;
+        }
+
+        const itemsByCategoryPdf = {};
+        itemsToExport.forEach(item => {
+            const categoryName = item.Categoria || 'Sem Categoria';
+            if (!itemsByCategoryPdf[categoryName]) {
+                itemsByCategoryPdf[categoryName] = [];
+            }
+            itemsByCategoryPdf[categoryName].push(item);
+        });
+
+        let yPosition = 15; 
+        const lineHeight = 7; 
+        const pageHeight = doc.internal.pageSize.height - 15; // Margem inferior
+        const leftMargin = 15;
+        const itemIndent = 20;
+        const titleFontSize = 18;
+        const dateFontSize = 9;
+        const categoryFontSize = 14;
+        const itemFontSize = 11;
+
+        doc.setFontSize(titleFontSize);
+        doc.setFont(undefined, 'bold');
+        doc.text("Lista de Compras", doc.internal.pageSize.width / 2, yPosition, { align: 'center' });
+        yPosition += lineHeight * 1.5;
+
+        const today = new Date();
+        doc.setFontSize(dateFontSize);
+        doc.setFont(undefined, 'normal');
+        doc.setTextColor(100); // Cinza para a data
+        doc.text(`Gerado em: ${today.toLocaleDateString('pt-BR')} ${today.toLocaleTimeString('pt-BR')}`, leftMargin, yPosition);
+        yPosition += lineHeight * 2;
+        doc.setTextColor(0); // Reseta cor para preto
+
+        const orderedCategoryNames = categories.map(cat => cat.name);
+        if (itemsByCategoryPdf['Sem Categoria'] && !orderedCategoryNames.includes('Sem Categoria')) {
+            orderedCategoryNames.push('Sem Categoria');
+        }
+
+        orderedCategoryNames.forEach(categoryName => {
+            const categoryItems = itemsByCategoryPdf[categoryName];
+            if (categoryItems && categoryItems.length > 0) {
+                if (yPosition + lineHeight * 2 > pageHeight) { 
+                    doc.addPage();
+                    yPosition = 15;
+                }
+                
+                doc.setFontSize(categoryFontSize);
+                doc.setFont(undefined, 'bold');
+                doc.text(categoryName, leftMargin, yPosition);
+                yPosition += lineHeight * 1.2;
+                doc.setFont(undefined, 'normal');
+
+                categoryItems.forEach(item => {
+                    if (yPosition + lineHeight > pageHeight) {
+                        doc.addPage();
+                        yPosition = 15;
+                        doc.setFontSize(categoryFontSize);
+                        doc.setFont(undefined, 'bold');
+                        doc.text(`${categoryName} (continuação)`, leftMargin, yPosition);
+                        yPosition += lineHeight * 1.2;
+                        doc.setFont(undefined, 'normal');
+                    }
+
+                    doc.setFontSize(itemFontSize);
+                    let prefix = item.Comprado ? "[X] " : "[ ] ";
+                    let itemText = `${item.Nome}`;
+                    if (item.Quantidade > 1) {
+                        itemText += ` (Qtd: ${item.Quantidade})`;
+                    }
+                    
+                    // Aplica estilo de riscado se comprado
+                    if (item.Comprado) {
+                        doc.setTextColor(120); // Cinza para item comprado
+                        doc.text(prefix + itemText, itemIndent, yPosition, {flags: {strikeout: true}});
+                        doc.setTextColor(0); // Reseta cor
+                    } else {
+                        doc.text(prefix + itemText, itemIndent, yPosition);
+                    }
+                    yPosition += lineHeight;
+                });
+                yPosition += lineHeight * 0.5; 
+            }
+        });
+        
+        doc.save(`lista-de-compras-${today.toISOString().slice(0,10)}.pdf`);
+        showToast("Sucesso", "PDF da lista de compras gerado!", "success");
+    }
     
     // --- Controle do estado visual do FAB (Apenas Ícone) ---
     function updateFabIconState(isOffcanvasNowOpen) {
@@ -595,28 +739,18 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    // Listener de clique no FAB: alterna o ícone do FAB
     fabAddItemButton.addEventListener('click', function() {
-        // O Bootstrap Offcanvas usa a classe 'show' no elemento offcanvas para indicar visibilidade.
-        // Se o offcanvas NÃO tem 'show' APÓS este clique (o que significa que ele está sendo aberto),
-        // o ícone deve ser 'X'.
-        // Se ele TEM 'show' APÓS este clique (o que significa que ele está sendo fechado),
-        // o ícone deve ser '+'.
-        // No entanto, o toggle do Bootstrap ainda não ocorreu totalmente neste ponto.
-        // Então, verificamos o estado ANTES do toggle implícito do Bootstrap.
         const isCurrentlyHidden = !offcanvasMenuElement.classList.contains('show');
-        updateFabIconState(isCurrentlyHidden); // Se estava escondido, agora vai mostrar (ícone X)
-                                            // Se estava mostrando, agora vai esconder (ícone +)
+        updateFabIconState(isCurrentlyHidden); 
     });
 
-    // Eventos do Bootstrap para sincronização FINAL do ícone do FAB
     offcanvasMenuElement.addEventListener('shown.bs.offcanvas', function () {
-        updateFabIconState(true); // Garante que o FAB está no estado 'X' após abrir
+        updateFabIconState(true); 
     });
 
     offcanvasMenuElement.addEventListener('hidden.bs.offcanvas', function () {
-        updateFabIconState(false); // Garante que o FAB está no estado '+' após fechar
+        updateFabIconState(false); 
     });
     
-    console.log("Aplicativo Lista de Compras v2.4 (FAB - ícone apenas)");
+    console.log("Aplicativo Lista de Compras v2.7 (Download PDF)");
 });
