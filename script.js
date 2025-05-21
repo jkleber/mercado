@@ -467,6 +467,17 @@ document.addEventListener('DOMContentLoaded', function () {
                     itemQuantitySpan.textContent = `Qtd: ${item.Quantidade}`;
                     itemActionsDiv.appendChild(itemQuantitySpan);
                     
+                    const editBtn = document.createElement('button');
+                    editBtn.className = 'btn-category-edit';
+                    editBtn.innerHTML = '<i class="bi bi-pencil-fill"></i>';
+                    editBtn.setAttribute('aria-label', `Editar ${item.Nome}`);
+                    editBtn.title = `Editar ${item.Nome}`;
+                    editBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        openEditItemModal(item);
+                    });
+                    itemActionsDiv.appendChild(editBtn);
+                    
                     const deleteBtn = document.createElement('button');
                     deleteBtn.className = 'btn-delete'; 
                     deleteBtn.innerHTML = '<i class="bi bi-trash-fill"></i>';
@@ -493,6 +504,48 @@ document.addEventListener('DOMContentLoaded', function () {
             // (código para renderizar itens sem categoria - mantido)
         }
     }
+
+    // Function to open the edit item modal and populate fields
+    function openEditItemModal(item) {
+        const editItemModalElement = document.getElementById('editItemModal');
+        const editItemModalInstance = new bootstrap.Modal(editItemModalElement);
+        document.getElementById('editItemId').value = item.id;
+        document.getElementById('editItemName').value = item.Nome;
+        document.getElementById('editItemQuantity').value = item.Quantidade;
+        // Populate category select options and set selected value
+        const editCategorySelect = document.getElementById('editCategorySelect');
+        editCategorySelect.innerHTML = '<option value="" disabled>Selecione a categoria</option>';
+        categories.forEach(category => {
+            const option = document.createElement('option');
+            option.value = category.name;
+            option.textContent = `${category.icon} ${category.name}`;
+            editCategorySelect.appendChild(option);
+        });
+        if (categories.some(c => c.name === item.Categoria)) {
+            editCategorySelect.value = item.Categoria;
+        } else {
+            editCategorySelect.selectedIndex = 0;
+        }
+        editItemModalInstance.show();
+    }
+
+    // Event listener for edit item form submission
+    const editItemForm = document.getElementById('editItemForm');
+    editItemForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const itemId = document.getElementById('editItemId').value;
+        const itemName = document.getElementById('editItemName').value.trim();
+        const itemQuantity = parseInt(document.getElementById('editItemQuantity').value) || 1;
+        const itemCategory = document.getElementById('editCategorySelect').value;
+        if (!itemName || !itemCategory) {
+            showToast("Atenção", "Nome do item e categoria são obrigatórios.", "warning");
+            return;
+        }
+        await updateItemInFirebase(itemId, { Nome: itemName, Quantidade: itemQuantity, Categoria: itemCategory });
+        const editItemModalElement = document.getElementById('editItemModal');
+        const editItemModalInstance = bootstrap.Modal.getInstance(editItemModalElement);
+        editItemModalInstance.hide();
+    });
 
     function showToast(title, message, type = 'info') { 
         const toastContainer = document.querySelector('.toast-container');

@@ -191,24 +191,59 @@
         </div>
     </div>
 
-    <!-- Modal de Confirmação para Excluir Item -->
-    <div class="modal fade" id="deleteItemModal" tabindex="-1" aria-labelledby="deleteItemModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-sm"> 
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="deleteItemModalLabel">Confirmar Exclusão</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
-                </div>
-                <div class="modal-body">
-                    <p>Tem certeza que deseja excluir o item "<span id="deleteItemNameModal" class="fw-bold"></span>"?</p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-danger" id="confirmDeleteItemButton">Excluir</button>
+            <!-- Modal de Confirmação para Excluir Item -->
+            <div class="modal fade" id="deleteItemModal" tabindex="-1" aria-labelledby="deleteItemModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-sm"> 
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="deleteItemModalLabel">Confirmar Exclusão</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p>Tem certeza que deseja excluir o item "<span id="deleteItemNameModal" class="fw-bold"></span>"?</p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="button" class="btn btn-danger" id="confirmDeleteItemButton">Excluir</button>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-    </div>
+
+            <!-- Modal para Editar Item -->
+            <div class="modal fade" id="editItemModal" tabindex="-1" aria-labelledby="editItemModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <form id="editItemForm">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="editItemModalLabel">Editar Item</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                            </div>
+                            <div class="modal-body">
+                                <input type="hidden" id="editItemId" />
+                                <div class="mb-3">
+                                    <label for="editItemName" class="form-label">Item</label>
+                                    <input type="text" id="editItemName" class="form-control" placeholder="Nome do item" required />
+                                </div>
+                                <div class="mb-3">
+                                    <label for="editItemQuantity" class="form-label">Quantidade</label>
+                                    <input type="number" id="editItemQuantity" class="form-control" value="1" min="1" />
+                                </div>
+                                <div class="mb-3">
+                                    <label for="editCategorySelect" class="form-label">Categoria</label>
+                                    <select id="editCategorySelect" class="form-select" required>
+                                        <option value="" disabled>Selecione a categoria</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
