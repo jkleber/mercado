@@ -675,106 +675,95 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Função para gerar e baixar o PDF
+        // Substituir a função existente generateAndDownloadPDF no script.js por esta nova versão
     async function generateAndDownloadPDF() {
-        const { jsPDF } = window.jspdf; 
-        const doc = new jsPDF({
-            orientation: 'p', // portrait
-            unit: 'mm',       // millimeters
-            format: 'a4'      // A4 size
-        });
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
 
         const itemsToExport = getFilteredItems();
-
         if (itemsToExport.length === 0) {
             showToast("Informação", "Não há itens na lista para gerar o PDF.", "info");
             return;
         }
 
-        const itemsByCategoryPdf = {};
+        const itemsByCategory = {};
         itemsToExport.forEach(item => {
-            const categoryName = item.Categoria || 'Sem Categoria';
-            if (!itemsByCategoryPdf[categoryName]) {
-                itemsByCategoryPdf[categoryName] = [];
-            }
-            itemsByCategoryPdf[categoryName].push(item);
+            const cat = item.Categoria || 'Sem Categoria';
+            if (!itemsByCategory[cat]) itemsByCategory[cat] = [];
+            itemsByCategory[cat].push(item);
         });
 
-        let yPosition = 15; 
-        const lineHeight = 7; 
-        const pageHeight = doc.internal.pageSize.height - 15; // Margem inferior
-        const leftMargin = 15;
-        const itemIndent = 20;
-        const titleFontSize = 18;
-        const dateFontSize = 9;
-        const categoryFontSize = 14;
-        const itemFontSize = 11;
-
-        doc.setFontSize(titleFontSize);
-        doc.setFont(undefined, 'bold');
-        doc.text("Lista de Compras", doc.internal.pageSize.width / 2, yPosition, { align: 'center' });
-        yPosition += lineHeight * 1.5;
-
-        const today = new Date();
-        doc.setFontSize(dateFontSize);
-        doc.setFont(undefined, 'normal');
-        doc.setTextColor(100); // Cinza para a data
-        doc.text(`Gerado em: ${today.toLocaleDateString('pt-BR')} ${today.toLocaleTimeString('pt-BR')}`, leftMargin, yPosition);
-        yPosition += lineHeight * 2;
-        doc.setTextColor(0); // Reseta cor para preto
-
-        const orderedCategoryNames = categories.map(cat => cat.name);
-        if (itemsByCategoryPdf['Sem Categoria'] && !orderedCategoryNames.includes('Sem Categoria')) {
-            orderedCategoryNames.push('Sem Categoria');
+        const orderedCategories = categories.map(c => c.name);
+        if (itemsByCategory['Sem Categoria'] && !orderedCategories.includes('Sem Categoria')) {
+            orderedCategories.push('Sem Categoria');
         }
 
-        orderedCategoryNames.forEach(categoryName => {
-            const categoryItems = itemsByCategoryPdf[categoryName];
-            if (categoryItems && categoryItems.length > 0) {
-                if (yPosition + lineHeight * 2 > pageHeight) { 
-                    doc.addPage();
-                    yPosition = 15;
-                }
-                
-                doc.setFontSize(categoryFontSize);
-                doc.setFont(undefined, 'bold');
-                doc.text(categoryName, leftMargin, yPosition);
-                yPosition += lineHeight * 1.2;
-                doc.setFont(undefined, 'normal');
-
-                categoryItems.forEach(item => {
-                    if (yPosition + lineHeight > pageHeight) {
-                        doc.addPage();
-                        yPosition = 15;
-                        doc.setFontSize(categoryFontSize);
-                        doc.setFont(undefined, 'bold');
-                        doc.text(`${categoryName} (continuação)`, leftMargin, yPosition);
-                        yPosition += lineHeight * 1.2;
-                        doc.setFont(undefined, 'normal');
-                    }
-
-                    doc.setFontSize(itemFontSize);
-                    let prefix = item.Comprado ? "[X] " : "[ ] ";
-                    let itemText = `${item.Nome}`;
-                    if (item.Quantidade > 1) {
-                        itemText += ` (Qtd: ${item.Quantidade})`;
-                    }
-                    
-                    // Aplica estilo de riscado se comprado
-                    if (item.Comprado) {
-                        doc.setTextColor(120); // Cinza para item comprado
-                        doc.text(prefix + itemText, itemIndent, yPosition, {flags: {strikeout: true}});
-                        doc.setTextColor(0); // Reseta cor
-                    } else {
-                        doc.text(prefix + itemText, itemIndent, yPosition);
-                    }
-                    yPosition += lineHeight;
-                });
-                yPosition += lineHeight * 0.5; 
+        let linearList = [];
+        orderedCategories.forEach(cat => {
+            if (itemsByCategory[cat]) {
+            linearList.push({ type: 'category', name: cat });
+            itemsByCategory[cat].forEach(item => {
+                linearList.push({ type: 'item', ...item });
+            });
             }
         });
-        
+
+        const lineHeight = 7;
+        const pageHeight = doc.internal.pageSize.height - 15;
+        const usableHeight = pageHeight - 30;
+        const linesPerColumn = Math.floor(usableHeight / lineHeight);
+        const columnPadding = 10;
+        const leftX = 15;
+        const rightX = doc.internal.pageSize.width / 2 + columnPadding;
+        const startY = 40;
+        let currentX = leftX;
+        let currentY = startY;
+
+        const today = new Date();
+        doc.setFontSize(18);
+        doc.setFont(undefined, 'bold');
+        doc.text("Lista de Compras", doc.internal.pageSize.width / 2, 15, { align: 'center' });
+
+        doc.setFontSize(9);
+        doc.setFont(undefined, 'normal');
+        doc.setTextColor(100);
+        doc.text(`Gerado em: ${today.toLocaleDateString('pt-BR')} ${today.toLocaleTimeString('pt-BR')}`, leftX, 22);
+        doc.setTextColor(0);
+        doc.setFontSize(11);
+
+        let lineCount = 0;
+        linearList.forEach(entry => {
+            if (lineCount >= linesPerColumn * 2) {
+            doc.addPage();
+            currentX = leftX;
+            currentY = startY;
+            lineCount = 0;
+            }
+
+            if (lineCount === linesPerColumn) {
+            currentX = rightX;
+            currentY = startY; // Alinha topo com a primeira coluna
+            }
+
+            if (entry.type === 'category') {
+            doc.setFontSize(13);
+            doc.setFont(undefined, 'bold');
+            doc.text(entry.name, currentX, currentY);
+            doc.setFont(undefined, 'normal');
+            doc.setFontSize(11);
+            } else if (entry.type === 'item') {
+            const prefix = entry.Comprado ? '[X]' : '[ ]';
+            let text = `${prefix} ${entry.Nome}`;
+            if (entry.Quantidade > 1) text += ` (Qtd: ${entry.Quantidade})`;
+            doc.text(text, currentX + 5, currentY);
+            }
+
+            currentY += lineHeight;
+            lineCount++;
+        });
+
         doc.save(`lista-de-compras-${today.toISOString().slice(0,10)}.pdf`);
-        showToast("Sucesso", "PDF da lista de compras gerado!", "success");
+        showToast("Sucesso", "PDF da lista de compras gerado com 2 colunas!", "success");
     }
     
     // --- Controle do estado visual do FAB (Apenas Ícone) ---
