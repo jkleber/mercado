@@ -5,6 +5,7 @@
 
 document.addEventListener('DOMContentLoaded', function () {
     // --- Referências aos Elementos HTML ---
+    const settingsButton = document.getElementById('desktopSettingsBtn');
     const fabAddItemButton = document.getElementById('fabAddItem');
     const addItemForm = document.getElementById('addItemForm'); 
     const addCategoryForm = document.getElementById('addCategoryForm'); 
@@ -64,6 +65,13 @@ document.addEventListener('DOMContentLoaded', function () {
     let itemToDeleteName = null; 
 
     const emojis = ['🍎', '🥦', '🥛', '🍖', '🍹', '🍞', '🍗', '🍇', '🍉', '🍌', '🍒', '🥕', '🥩', '🍤', '🍰', '🍪', '🍕', '🌽', '🍅', '🥥', '🛒', '🛍️', '📋', '📍', '🧀', '🥚', '🥓', '🥖', '🥐', '🧈', '🧂', '🥫', '🥔', '🍠', '🍯', '🥜', '🫘', '🍝', '🥞', '🧊', '🧃', '🧴', '🧻', '🧼', '🧹', '🧺', '🪣', '🧷', '🪒', '🪥', '🧸', '📱', '💻', '🔋', '💡', '🧾'];
+
+    if (settingsButton) {
+        settingsButton.addEventListener('click', () => {
+            const offcanvas = new bootstrap.Offcanvas('#offcanvasMenu');
+            offcanvas.show();
+        });
+    }
 
     if (typeof firebase === 'undefined' || typeof database === 'undefined' || typeof itemsRef === 'undefined' || typeof categoriesRef === 'undefined' || typeof categoryOrderRef === 'undefined' || typeof jspdf === 'undefined') {
         console.error("Firebase SDK, jsPDF ou referências não carregadas.");

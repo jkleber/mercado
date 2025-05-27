@@ -619,4 +619,54 @@ body {
     box-shadow: none;
 }
 
-/* Removido @media print pois a funcionalidade mudou para download PDF */
+
+@media (min-width: 768px) {
+  .search-input {
+    border-radius: 999px;
+    padding: 0.4rem 1rem;
+    width: 220px;
+    transition: width 0.3s ease;
+  }
+
+  .search-input:focus {
+    width: 280px;
+  }
+
+  #desktopSettingsBtn {
+    background: transparent;
+    border: none;
+    padding: 0.4rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+  }
+
+  #desktopSettingsBtn i {
+    color: white;
+    font-size: 1.5rem;
+  }
+
+  #desktopSettingsBtn:hover i {
+    color: #e9ecef;
+  }
+
+  
+  .navbar-title {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: white;
+    z-index: 10;
+    white-space: nowrap;
+  }
+}
+
+
+
+
+
+
+
+
