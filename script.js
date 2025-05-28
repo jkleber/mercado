@@ -775,12 +775,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const lineHeight = 7;
         const pageHeight = doc.internal.pageSize.height - 15;
-        const usableHeight = pageHeight - 30;
+        const usableHeight = pageHeight - 25;
         const linesPerColumn = Math.floor(usableHeight / lineHeight);
         const columnPadding = 10;
         const leftX = 15;
         const rightX = doc.internal.pageSize.width / 2 + columnPadding;
-        const startY = 40;
+        const startY = 30;
         let currentX = leftX;
         let currentY = startY;
 
@@ -789,10 +789,10 @@ document.addEventListener('DOMContentLoaded', function () {
         doc.setFont(undefined, 'bold');
         doc.text("Lista de Compras", doc.internal.pageSize.width / 2, 15, { align: 'center' });
 
-        doc.setFontSize(9);
-        doc.setFont(undefined, 'normal');
-        doc.setTextColor(100);
-        doc.text(`Gerado em: ${today.toLocaleDateString('pt-BR')} ${today.toLocaleTimeString('pt-BR')}`, leftX, 22);
+        //doc.setFontSize(9);
+        //doc.setFont(undefined, 'normal');
+        //doc.setTextColor(100);
+        //doc.text(`Gerado em: ${today.toLocaleDateString('pt-BR')} ${today.toLocaleTimeString('pt-BR')}`, leftX, 22);
         doc.setTextColor(0);
         doc.setFontSize(11);
 
