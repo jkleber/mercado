@@ -583,29 +583,62 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // --- Event Listeners ---
-    addItemForm.addEventListener('submit', async (e) => { 
+    addItemForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const itemNameVal = itemInput.value.trim();
+
+        const itemNameVal = itemInput.value.trim().toLowerCase();
         const itemQuantityVal = parseInt(itemQuantityInput.value) || 1;
         const itemCategoryVal = categorySelect.value;
+
         if (!itemNameVal || !itemCategoryVal) {
             showToast("Atenção", "Nome do item e categoria são obrigatórios.", "warning");
             return;
         }
-        await addItemToFirebase({ Nome: itemNameVal, Quantidade: itemQuantityVal, Categoria: itemCategoryVal, Comprado: false });
+
+        // Verificação se já existe item com mesmo nome e categoria
+        const exists = items.some(item =>
+            item.Nome.trim().toLowerCase() === itemNameVal &&
+            item.Categoria.trim().toLowerCase() === itemCategoryVal.trim().toLowerCase()
+        );
+
+        if (exists) {
+            showToast("Atenção", `Item '${itemInput.value.trim()}' já existe na categoria '${itemCategoryVal}'`, "warning");
+            return;
+        }
+
+        await addItemToFirebase({
+            Nome: itemInput.value.trim(),
+            Quantidade: itemQuantityVal,
+            Categoria: itemCategoryVal,
+            Comprado: false
+        });
+
         itemInput.value = '';
         itemQuantityInput.value = '1';
         itemInput.focus();
     });
     
-    addCategoryForm.addEventListener('submit', async (e) => { 
+    addCategoryForm.addEventListener('submit', async (e) => {
         e.preventDefault();
+
         const categoryNameVal = newCategoryInput.value.trim();
         const categoryIconVal = newCategoryIconInput.value.trim() || '📦';
+
         if (!categoryNameVal) {
             showToast("Atenção", "O nome da categoria é obrigatório.", "warning");
             return;
         }
+
+        // Verificação se a categoria já existe (case insensitive)
+        const exists = localRawCategories.some(cat =>
+            cat.name.trim().toLowerCase() === categoryNameVal.toLowerCase()
+        );
+
+        if (exists) {
+            showToast("Atenção", `Categoria '${categoryNameVal}' já está cadastrada`, "warning");
+            return;
+        }
+
         const success = await addCategoryToFirebase(categoryNameVal, categoryIconVal);
         if (success) {
             newCategoryInput.value = '';
