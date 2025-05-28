@@ -755,7 +755,10 @@ document.addEventListener('DOMContentLoaded', function () {
             itemsByCategory[cat].push(item);
         });
 
-        const orderedCategories = categories.map(c => c.name);
+        const orderedCategories = Array.isArray(categories)
+            ? categories.map(c => c.name)
+            : [];
+            
         if (itemsByCategory['Sem Categoria'] && !orderedCategories.includes('Sem Categoria')) {
             orderedCategories.push('Sem Categoria');
         }

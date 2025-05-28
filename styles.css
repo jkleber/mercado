@@ -624,12 +624,12 @@ body {
   .search-input {
     border-radius: 999px;
     padding: 0.4rem 1rem;
-    width: 220px;
-    transition: width 0.3s ease;
+    width: 190px;
+    /*transition: width 0.3s ease;*/
   }
 
   .search-input:focus {
-    width: 280px;
+    width: 190px;
   }
 
   #desktopSettingsBtn {
