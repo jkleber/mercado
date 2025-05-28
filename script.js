@@ -255,17 +255,38 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function updateSearch(term) {
         const oldSearchTerm = searchTerm;
-        searchTerm = term.toLowerCase(); 
-        if (searchInput.value.toLowerCase() !== searchTerm) searchInput.value = term;
-        if (searchInputMobile.value.toLowerCase() !== searchTerm) searchInputMobile.value = term;
+        const cleanedTerm = term.trim();
+        const minLength = 4;
+
+        // Atualiza o valor exibido nos campos de busca
+        if (searchInput.value !== term) searchInput.value = term;
+        if (searchInputMobile.value !== term) searchInputMobile.value = term;
+
+        // Caso o campo esteja vazio → resetar
+        if (cleanedTerm.length === 0) {
+            searchTerm = '';
+            renderList();
+            return;
+        }
+
+        // Caso tenha 1 ou 2 caracteres → não filtrar, não mostrar toast
+        if (cleanedTerm.length < minLength) {
+            return;
+        }
+
+        // Termo válido → aplicar busca
+        searchTerm = cleanedTerm.toLowerCase();
         renderList();
-        if (term && document.activeElement === searchInputMobile && oldSearchTerm !== searchTerm) {
+
+        // Exibir toast apenas no mobile
+        if (document.activeElement === searchInputMobile && oldSearchTerm !== searchTerm) {
             const filteredItems = getFilteredItems();
+
             if (filteredItems.length > 0) {
-                showToast("Busca", `Encontrado: ${filteredItems[0].Nome}`, "info")
-                bsOffcanvas.hide(); 
+                showToast("Busca", `Encontrado: ${filteredItems[0].Nome}`, "info");
+            bsOffcanvas.hide();
             } else {
-                showToast("Busca", `Nenhum item para "${term}"`, "warning");
+                showToast("Busca", `Nenhum item para "${cleanedTerm}"`, "warning");
             }
         }
     }
