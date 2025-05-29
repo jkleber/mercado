@@ -1,5 +1,4 @@
 /* Modern and attractive layout for shopping list app */
-
 /* Color palette */
 :root {
     --primary-color: #4a90e2;
@@ -660,6 +659,20 @@ body {
     z-index: 10;
     white-space: nowrap;
   }
+  
+}
+
+/* Correção para remover padding e rolagem da tela de login */
+#loginScreen {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  z-index: 1050; /* acima do conteúdo */
+}
+
+body.login-only {
+  padding-top: 0 !important;
+  overflow: hidden;
 }
 
 

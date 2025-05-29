@@ -3,7 +3,19 @@
 // em tags <script> ANTES deste script.
 // O index.html deve inicializar o app Firebase e criar as referências 'database', 'itemsRef', 'categoriesRef', e 'categoryOrderRef'.
 
-document.addEventListener('DOMContentLoaded', function () {
+const firebaseConfig = {
+    apiKey: "AIzaSyAQN4078FDvZj2Y2_EvS8yXVSff8rBPOkg",
+    authDomain: "listacomprasapp-f16cc.firebaseapp.com",
+    databaseURL: "https://listacomprasapp-f16cc-default-rtdb.firebaseio.com",
+    projectId: "listacomprasapp-f16cc",
+    storageBucket: "listacomprasapp-f16cc.firebasestorage.app",
+    messagingSenderId: "656637499111",
+    appId: "1:656637499111:web:be0a1afafa113828817442"
+};
+
+const AUTHORIZED_EMAIL = "jose.kleberr@gmail.com";
+
+document.addEventListener('DOMContentLoaded', function () { 
     // --- Referências aos Elementos HTML ---
     const settingsButton = document.getElementById('desktopSettingsBtn');
     const fabAddItemButton = document.getElementById('fabAddItem');
@@ -52,6 +64,63 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const fabIcon = fabAddItemButton.querySelector('i');
     const downloadPdfButton = document.getElementById('downloadPdfButton'); // Referência ao novo botão
+
+
+    const loginScreen = document.getElementById("loginScreen");
+    const appContainer = document.getElementById("appContainer");
+    const loginError = document.getElementById("loginError");
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const database = firebase.database();
+    
+    auth.onAuthStateChanged((user) => {
+        console.log("Auth state changed. User:", user);
+        console.log("LoginScreen DOM:", loginScreen);
+        console.log("AppContainer DOM:", appContainer);
+
+        if (user && user.email?.toLowerCase() === AUTHORIZED_EMAIL.toLowerCase()) {
+            
+            loginScreen.classList.add("d-none");
+            appContainer.classList.remove("d-none"); // 👈 mostra a aplicação
+            document.body.classList.remove("login-only");
+
+            logoutButton.classList.remove("d-none");
+            console.log("✅ Usuário autenticado, interface principal exibida");
+        } else {
+            loginScreen.classList.remove("d-none");
+            document.body.classList.add("login-only");
+
+            appContainer.classList.add("d-none");
+            logoutButton.classList.add("d-none");
+            console.log("🔒 Usuário não autenticado, tela de login exibida");
+        }
+    });
+
+
+    //inserido
+    const itemsRef = database.ref('items');
+    const categoriesRef = database.ref('categories');
+    const categoryOrderRef = database.ref('categoryOrder');
+
+    document.getElementById("loginForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const email = document.getElementById("loginEmail").value.trim();
+        const password = document.getElementById("loginPassword").value;
+
+        try {
+            await auth.signInWithEmailAndPassword(email, password);
+                loginError.classList.add("d-none");
+        } catch (error) {
+            loginError.classList.remove("d-none");
+        }
+    });
+
+    document.getElementById("logoutButton").addEventListener("click", () => {
+        firebase.auth().signOut();
+    });
+
 
     // --- Estado da Aplicação ---
     let categories = []; 
@@ -737,7 +806,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Função para gerar e baixar o PDF
-        // Substituir a função existente generateAndDownloadPDF no script.js por esta nova versão
     async function generateAndDownloadPDF() {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
@@ -789,10 +857,6 @@ document.addEventListener('DOMContentLoaded', function () {
         doc.setFont(undefined, 'bold');
         doc.text("Lista de Compras", doc.internal.pageSize.width / 2, 15, { align: 'center' });
 
-        //doc.setFontSize(9);
-        //doc.setFont(undefined, 'normal');
-        //doc.setTextColor(100);
-        //doc.text(`Gerado em: ${today.toLocaleDateString('pt-BR')} ${today.toLocaleTimeString('pt-BR')}`, leftX, 22);
         doc.setTextColor(0);
         doc.setFontSize(11);
 
@@ -860,4 +924,9 @@ document.addEventListener('DOMContentLoaded', function () {
     });
     
     console.log("Aplicativo Lista de Compras v2.7 (Download PDF)");
+
+    document.getElementById('logoutButton').addEventListener('click', () => {
+        auth.signOut();
+    });
+    
 });

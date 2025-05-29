@@ -10,282 +10,288 @@
 </head>
 <body>
 
-    <nav class="navbar navbar-expand-md fixed-top">
-        <div class="container-fluid d-flex align-items-center justify-content-between">
-            <!-- Mobile: botão hambúrguer e título -->
-            <div class="d-flex align-items-center d-md-none">
-                <button class="navbar-toggler me-2" type="button"
-                        data-bs-toggle="offcanvas" data-bs-target="#offcanvasMenu"
-                        aria-controls="offcanvasMenu" aria-label="Menu">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <!-- Título no mobile -->
-                <a class="navbar-brand d-md-none" href="#">Lista de Compras</a>
-            </div>
-
-            <!-- Título no desktop, centralizado -->
-            <a class="navbar-title navbar-brand d-none d-md-block position-absolute top-50 start-50 translate-middle" href="#">
-                Lista de Compras
-            </a>
-
-            <!-- Desktop: campo de busca + botão ⚙️ -->
-            <div class="d-none d-md-flex align-items-center gap-2 ms-auto">
-                <input type="text" id="searchInput" class="search-input" placeholder="Buscar item..." aria-label="Buscar">
-                <button id="desktopSettingsBtn" class="btn" title="Configurações">
-                    <i class="bi bi-gear-fill"></i>
-                </button>
-            </div>
-        </div>
-    </nav>
-
-    <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasMenu" aria-labelledby="offcanvasMenuLabel">
-        <div class="offcanvas-header">
-            <h5 class="offcanvas-title" id="offcanvasMenuLabel">Opções da Lista</h5>
-            <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Fechar"></button>
-        </div>
-        <div class="offcanvas-body">
-            <div class="mb-4 d-md-none">
-                <div class="input-group">
-                    <input type="text" id="searchInputMobile" class="form-control" placeholder="Buscar item...">
-                    <span class="input-group-text"><i class="bi bi-search"></i></span> 
-                </div>
-            </div>
-
-            <form id="addItemForm" class="mb-4 p-3 bg-light rounded shadow-sm">
-                <h6>Adicionar Novo Item</h6>
-                <div class="mb-3">
-                    <label for="itemInput" class="form-label">Item</label>
-                    <input type="text" id="itemInput" class="form-control" placeholder="Nome do item" required />
-                </div>
-                <div class="mb-3">
-                    <label for="itemQuantity" class="form-label">Quantidade</label>
-                    <input type="number" id="itemQuantity" class="form-control" value="1" min="1" />
-                </div>
-                <div class="mb-3">
-                    <label for="categorySelect" class="form-label">Categoria</label>
-                    <select id="categorySelect" class="form-select" required>
-                        <option value="" disabled selected>Selecione a categoria</option>
-                    </select>
-                </div>
-                <button type="submit" id="addItemButton" class="btn btn-primary w-100">
-                    <i class="bi bi-plus-circle me-2"></i>Adicionar Item
-                </button>
+    <!-- Tela de Login -->
+    <div id="loginScreen" class="d-flex flex-column align-items-center justify-content-center vh-100 bg-light">
+        <div class="card p-4 shadow-sm" style="max-width: 360px; width: 100%;">
+            <h5 class="mb-3 text-center">Acesso Restrito</h5>
+            <!-- ✅ Formulário correto -->
+            <form id="loginForm">
+                <input type="email" id="loginEmail" class="form-control mb-2" placeholder="E-mail" autocomplete="username"/>
+                <input type="password" id="loginPassword" class="form-control mb-3" placeholder="Senha" autocomplete="current-password" />
+                <button id="loginButton" type="submit" class="btn btn-primary w-100">Entrar</button>
             </form>
 
-            <form id="addCategoryForm" class="mb-4 p-3 bg-light rounded shadow-sm">
-                <h6>Adicionar Nova Categoria</h6>
-                <div class="mb-3">
-                    <label for="newCategoryInput" class="form-label">Nome da Categoria</label>
-                    <input type="text" id="newCategoryInput" class="form-control" placeholder="Nome da nova categoria" required />
+            <div id="loginError" class="text-danger mt-3 text-center d-none">E-mail ou senha inválidos</div>
+        </div>
+    </div>
+
+    <div id="appContainer" class="d-none">
+        <nav class="navbar navbar-expand-md fixed-top">
+            <div class="container-fluid d-flex align-items-center justify-content-between">
+                <!-- Mobile: botão hambúrguer e título -->
+                <div class="d-flex align-items-center d-md-none">
+                    <button class="navbar-toggler me-2" type="button"
+                            data-bs-toggle="offcanvas" data-bs-target="#offcanvasMenu"
+                            aria-controls="offcanvasMenu" aria-label="Menu">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <!-- Título no mobile -->
+                    <a class="navbar-brand d-md-none" href="#">Lista de Compras</a>
                 </div>
-                <div class="mb-3">
-                    <label for="newCategoryIconInput" class="form-label">Ícone (Emoji)</label>
+
+                <!-- Título no desktop, centralizado -->
+                <a class="navbar-title navbar-brand d-none d-md-block position-absolute top-50 start-50 translate-middle" href="#">
+                    Lista de Compras
+                </a>
+
+                <!-- Desktop: campo de busca + botão ⚙️ -->
+                <div class="d-none d-md-flex align-items-center gap-2 ms-auto">
+                    <input type="text" id="searchInput" class="search-input" placeholder="Buscar item..." aria-label="Buscar">
+                    
+                    <button id="desktopSettingsBtn" class="btn" title="Configurações">
+                        <i class="bi bi-gear-fill"></i>
+                    </button>
+
+                    <button id="logoutButton" class="btn btn-outline-light d-none ms-2" title="Sair">
+                        <i class="bi bi-box-arrow-right"></i>
+                    </button>
+
+                </div>
+            </div>
+        </nav>
+
+        <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasMenu" aria-labelledby="offcanvasMenuLabel">
+            <div class="offcanvas-header">
+                <h5 class="offcanvas-title" id="offcanvasMenuLabel">Opções da Lista</h5>
+                <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Fechar"></button>
+            </div>
+            <div class="offcanvas-body">
+                <div class="mb-4 d-md-none">
                     <div class="input-group">
-                        <input type="text" id="newCategoryIconInput" class="form-control" placeholder="Ex: 🍎" readonly />
-                        <button class="btn btn-outline-secondary" type="button" id="emojiPickerButton">😊</button>
+                        <input type="text" id="searchInputMobile" class="form-control" placeholder="Buscar item...">
+                        <span class="input-group-text"><i class="bi bi-search"></i></span> 
                     </div>
-                    <div id="emojiPicker" class="d-none mt-2 border p-2 rounded"></div>
                 </div>
-                <button type="submit" id="addCategoryButton" class="btn btn-secondary w-100">
-                    <i class="bi bi-folder-plus me-2"></i>Adicionar Categoria
-                </button>
-            </form>
 
-            <div id="categoryManagement" class="mb-4 p-3 bg-light rounded shadow-sm">
-                <h6>Gerenciar Categorias</h6>
-                <p class="text-muted small mb-2">Arraste para reordenar as categorias</p>
-                <div id="categoryManagementList" class="mt-3">
-                    <!-- Categorias serão renderizadas aqui -->
-                </div>
-            </div>
-
-            <!-- Funcionalidade de Download PDF -->
-            <div class="download-section mb-4 p-3 bg-light rounded shadow-sm">
-                <h6>Opções de Lista</h6>
-                <button type="button" id="downloadPdfButton" class="btn btn-success w-100"> 
-                    <i class="bi bi-file-earmark-arrow-down-fill me-2"></i>Baixar Lista (PDF)
-                </button>
-            </div>
-
-        </div>
-    </div>
-
-    <div class="container mt-0 mb-4"> 
-        <div class="filter-controls mb-3">
-            <div>
-                <span class="filter-label">Filtrar:</span>
-            </div>
-            <div class="filter-options">
-                <button type="button" class="filter-btn active" data-filter="all">Todos</button>
-                <button type="button" class="filter-btn" data-filter="pending">Pendentes</button>
-                <button type="button" class="filter-btn" data-filter="bought">Comprados</button>
-            </div>
-        </div>
-        
-        <ul id="shoppingList" class="list-group">
-            <!-- Itens serão renderizados aqui -->
-        </ul>
-    </div>
-
-    <button id="fabAddItem" class="btn btn-gradient-fab" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasMenu" aria-controls="offcanvasMenu">
-        <i class="bi bi-plus-lg"></i>
-    </button>
-
-    <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1200; margin-top: 70px;">
-        <!-- Toasts -->
-    </div>
-
-    <!-- Modal para Editar Categoria -->
-    <div class="modal fade" id="editCategoryModal" tabindex="-1" aria-labelledby="editCategoryModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="editCategoryModalLabel">Editar Categoria</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="editCategoryForm">
-                        <input type="hidden" id="editCategoryId">
-                        <input type="hidden" id="editCategoryOldName">
-                        <div class="mb-3">
-                            <label for="editCategoryName" class="form-label">Nome da Categoria</label>
-                            <input type="text" class="form-control" id="editCategoryName" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="editCategoryIcon" class="form-label">Ícone (Emoji)</label>
-                            <div class="input-group">
-                                <input type="text" class="form-control" id="editCategoryIcon" readonly>
-                                <button class="btn btn-outline-secondary" type="button" id="editEmojiPickerButton">😊</button>
-                            </div>
-                            <div id="editEmojiPicker" class="d-none mt-2 border p-2 rounded"></div>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-primary" id="saveCategoryChanges">Salvar Alterações</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal de Confirmação para Excluir Categoria -->
-    <div class="modal fade" id="deleteCategoryModal" tabindex="-1" aria-labelledby="deleteCategoryModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="deleteCategoryModalLabel">Confirmar Exclusão</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
-                </div>
-                <div class="modal-body">
-                    <input type="hidden" id="deleteCategoryIdField">
-                    <p>Tem certeza que deseja excluir a categoria "<span id="deleteCategoryName" class="fw-bold"></span>"?</p> 
+                <form id="addItemForm" class="mb-4 p-3 bg-light rounded shadow-sm">
+                    <h6>Adicionar Novo Item</h6>
                     <div class="mb-3">
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="deleteOption" id="deleteOptionRemove" value="remove" checked>
-                            <label class="form-check-label" for="deleteOptionRemove">
-                                Excluir todos os itens desta categoria
-                            </label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="deleteOption" id="deleteOptionMove" value="move">
-                            <label class="form-check-label" for="deleteOptionMove">
-                                Mover itens para outra categoria
-                            </label>
-                        </div>
+                        <label for="itemInput" class="form-label">Item</label>
+                        <input type="text" id="itemInput" class="form-control" placeholder="Nome do item" required />
                     </div>
-                    <div id="moveToCategory" class="d-none mb-3">
-                        <label for="moveToSelect" class="form-label">Selecione a categoria de destino:</label>
-                        <select id="moveToSelect" class="form-select">
+                    <div class="mb-3">
+                        <label for="itemQuantity" class="form-label">Quantidade</label>
+                        <input type="number" id="itemQuantity" class="form-control" value="1" min="1" />
+                    </div>
+                    <div class="mb-3">
+                        <label for="categorySelect" class="form-label">Categoria</label>
+                        <select id="categorySelect" class="form-select" required>
+                            <option value="" disabled selected>Selecione a categoria</option>
                         </select>
                     </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-danger" id="confirmDeleteCategory">Excluir</button>
-                </div>
-            </div>
-        </div>
-    </div>
+                    <button type="submit" id="addItemButton" class="btn btn-primary w-100">
+                        <i class="bi bi-plus-circle me-2"></i>Adicionar Item
+                    </button>
+                </form>
 
-            <!-- Modal de Confirmação para Excluir Item -->
-            <div class="modal fade" id="deleteItemModal" tabindex="-1" aria-labelledby="deleteItemModalLabel" aria-hidden="true">
-                <div class="modal-dialog modal-sm"> 
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="deleteItemModalLabel">Confirmar Exclusão</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                <form id="addCategoryForm" class="mb-4 p-3 bg-light rounded shadow-sm">
+                    <h6>Adicionar Nova Categoria</h6>
+                    <div class="mb-3">
+                        <label for="newCategoryInput" class="form-label">Nome da Categoria</label>
+                        <input type="text" id="newCategoryInput" class="form-control" placeholder="Nome da nova categoria" required />
+                    </div>
+                    <div class="mb-3">
+                        <label for="newCategoryIconInput" class="form-label">Ícone (Emoji)</label>
+                        <div class="input-group">
+                            <input type="text" id="newCategoryIconInput" class="form-control" placeholder="Ex: 🍎" readonly />
+                            <button class="btn btn-outline-secondary" type="button" id="emojiPickerButton">😊</button>
                         </div>
-                        <div class="modal-body">
-                            <p>Tem certeza que deseja excluir o item "<span id="deleteItemNameModal" class="fw-bold"></span>"?</p>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                            <button type="button" class="btn btn-danger" id="confirmDeleteItemButton">Excluir</button>
-                        </div>
+                        <div id="emojiPicker" class="d-none mt-2 border p-2 rounded"></div>
+                    </div>
+                    <button type="submit" id="addCategoryButton" class="btn btn-secondary w-100">
+                        <i class="bi bi-folder-plus me-2"></i>Adicionar Categoria
+                    </button>
+                </form>
+
+                <div id="categoryManagement" class="mb-4 p-3 bg-light rounded shadow-sm">
+                    <h6>Gerenciar Categorias</h6>
+                    <p class="text-muted small mb-2">Arraste para reordenar as categorias</p>
+                    <div id="categoryManagementList" class="mt-3">
+                        <!-- Categorias serão renderizadas aqui -->
                     </div>
                 </div>
-            </div>
 
-            <!-- Modal para Editar Item -->
-            <div class="modal fade" id="editItemModal" tabindex="-1" aria-labelledby="editItemModalLabel" aria-hidden="true">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <form id="editItemForm">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="editItemModalLabel">Editar Item</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                <!-- Funcionalidade de Download PDF -->
+                <div class="download-section mb-4 p-3 bg-light rounded shadow-sm">
+                    <h6>Opções de Lista</h6>
+                    <button type="button" id="downloadPdfButton" class="btn btn-success w-100"> 
+                        <i class="bi bi-file-earmark-arrow-down-fill me-2"></i>Baixar Lista (PDF)
+                    </button>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="container mt-0 mb-4"> 
+            <div class="filter-controls mb-3">
+                <div>
+                    <span class="filter-label">Filtrar:</span>
+                </div>
+                <div class="filter-options">
+                    <button type="button" class="filter-btn active" data-filter="all">Todos</button>
+                    <button type="button" class="filter-btn" data-filter="pending">Pendentes</button>
+                    <button type="button" class="filter-btn" data-filter="bought">Comprados</button>
+                </div>
+            </div>
+            
+            <ul id="shoppingList" class="list-group">
+                <!-- Itens serão renderizados aqui -->
+            </ul>
+        </div>
+
+        <button id="fabAddItem" class="btn btn-gradient-fab" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasMenu" aria-controls="offcanvasMenu">
+            <i class="bi bi-plus-lg"></i>
+        </button>
+
+        <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1200; margin-top: 70px;">
+            <!-- Toasts -->
+        </div>
+
+        <!-- Modal para Editar Categoria -->
+        <div class="modal fade" id="editCategoryModal" tabindex="-1" aria-labelledby="editCategoryModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editCategoryModalLabel">Editar Categoria</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="editCategoryForm">
+                            <input type="hidden" id="editCategoryId">
+                            <input type="hidden" id="editCategoryOldName">
+                            <div class="mb-3">
+                                <label for="editCategoryName" class="form-label">Nome da Categoria</label>
+                                <input type="text" class="form-control" id="editCategoryName" required>
                             </div>
-                            <div class="modal-body">
-                                <input type="hidden" id="editItemId" />
-                                <div class="mb-3">
-                                    <label for="editItemName" class="form-label">Item</label>
-                                    <input type="text" id="editItemName" class="form-control" placeholder="Nome do item" required />
+                            <div class="mb-3">
+                                <label for="editCategoryIcon" class="form-label">Ícone (Emoji)</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="editCategoryIcon" readonly>
+                                    <button class="btn btn-outline-secondary" type="button" id="editEmojiPickerButton">😊</button>
                                 </div>
-                                <div class="mb-3">
-                                    <label for="editItemQuantity" class="form-label">Quantidade</label>
-                                    <input type="number" id="editItemQuantity" class="form-control" value="1" min="1" />
-                                </div>
-                                <div class="mb-3">
-                                    <label for="editCategorySelect" class="form-label">Categoria</label>
-                                    <select id="editCategorySelect" class="form-select" required>
-                                        <option value="" disabled>Selecione a categoria</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                                <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+                                <div id="editEmojiPicker" class="d-none mt-2 border p-2 rounded"></div>
                             </div>
                         </form>
                     </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="button" class="btn btn-primary" id="saveCategoryChanges">Salvar Alterações</button>
+                    </div>
                 </div>
             </div>
+        </div>
+
+        <!-- Modal de Confirmação para Excluir Categoria -->
+        <div class="modal fade" id="deleteCategoryModal" tabindex="-1" aria-labelledby="deleteCategoryModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="deleteCategoryModalLabel">Confirmar Exclusão</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" id="deleteCategoryIdField">
+                        <p>Tem certeza que deseja excluir a categoria "<span id="deleteCategoryName" class="fw-bold"></span>"?</p> 
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="deleteOption" id="deleteOptionRemove" value="remove" checked>
+                                <label class="form-check-label" for="deleteOptionRemove">
+                                    Excluir todos os itens desta categoria
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="deleteOption" id="deleteOptionMove" value="move">
+                                <label class="form-check-label" for="deleteOptionMove">
+                                    Mover itens para outra categoria
+                                </label>
+                            </div>
+                        </div>
+                        <div id="moveToCategory" class="d-none mb-3">
+                            <label for="moveToSelect" class="form-label">Selecione a categoria de destino:</label>
+                            <select id="moveToSelect" class="form-select">
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="button" class="btn btn-danger" id="confirmDeleteCategory">Excluir</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+                <!-- Modal de Confirmação para Excluir Item -->
+                <div class="modal fade" id="deleteItemModal" tabindex="-1" aria-labelledby="deleteItemModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-sm"> 
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="deleteItemModalLabel">Confirmar Exclusão</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p>Tem certeza que deseja excluir o item "<span id="deleteItemNameModal" class="fw-bold"></span>"?</p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                <button type="button" class="btn btn-danger" id="confirmDeleteItemButton">Excluir</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal para Editar Item -->
+                <div class="modal fade" id="editItemModal" tabindex="-1" aria-labelledby="editItemModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <form id="editItemForm">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="editItemModalLabel">Editar Item</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <input type="hidden" id="editItemId" />
+                                    <div class="mb-3">
+                                        <label for="editItemName" class="form-label">Item</label>
+                                        <input type="text" id="editItemName" class="form-control" placeholder="Nome do item" required />
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="editItemQuantity" class="form-label">Quantidade</label>
+                                        <input type="number" id="editItemQuantity" class="form-control" value="1" min="1" />
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="editCategorySelect" class="form-label">Categoria</label>
+                                        <select id="editCategorySelect" class="form-select" required>
+                                            <option value="" disabled>Selecione a categoria</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                    <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+    </div>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     
     <!-- INCLUIR jsPDF via CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
-    <script>
-      const firebaseConfig = {
-        apiKey: "AIzaSyAQN4078FDvZj2Y2_EvS8yXVSff8rBPOkg", // Substitua pela sua API Key real
-        authDomain: "listacomprasapp-f16cc.firebaseapp.com",
-        databaseURL: "https://listacomprasapp-f16cc-default-rtdb.firebaseio.com", 
-        projectId: "listacomprasapp-f16cc",
-        storageBucket: "listacomprasapp-f16cc.firebasestorage.app",
-        messagingSenderId: "656637499111",
-        appId: "1:656637499111:web:be0a1afafa113828817442"
-      };
-
-      const app = firebase.initializeApp(firebaseConfig);
-      const database = firebase.database();
-      const itemsRef = database.ref('items');
-      const categoriesRef = database.ref('categories'); 
-      const categoryOrderRef = database.ref('categoryOrder'); 
-    </script>
-
+  
     <script src="script.js"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
