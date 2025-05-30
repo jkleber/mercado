@@ -668,7 +668,7 @@ body {
   inset: 0;
   overflow: hidden;
   z-index: 1050; /* acima do conteúdo */
-  padding-top: 8rem; /* Ajuste esse valor conforme preferir: 2rem, 2.5rem, 3rem */
+  /*padding-top: 8rem; /* Ajuste esse valor conforme preferir: 2rem, 2.5rem, 3rem */
 }
 
 body.login-only {
@@ -694,8 +694,35 @@ body.login-only {
 }
 
 #logoutButton:hover i {
-  color: #e9ecef;
+    color: #e9ecef;
 }
+
+/* Corrige o espaçamento dos elementos na navbar */
+.d-md-flex.align-items-center.gap-2 > * {
+    margin: 0 !important;  /* Remove qualquer margem residual */
+}
+
+/* Ajusta os botões para o mesmo tamanho e altura do input */
+.d-md-flex.align-items-center.gap-2 > button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.4rem;
+}
+
+/* Opcional: ajuste o ícone para ter o mesmo tamanho vertical do input */
+.d-md-flex.align-items-center.gap-2 > button i {
+    font-size: 1.2rem;
+}
+
+@media (max-width: 1180px) {
+  .navbar-title {
+    position: static !important; /* remove o posicionamento absoluto */
+    transform: none !important;  /* remove o translate-middle */
+    margin-left: 1rem;           /* coloca o texto à esquerda */
+  }
+}
+
 
 
 

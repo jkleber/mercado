@@ -11,21 +11,22 @@
 <body>
 
     <!-- Tela de Login -->
-    <div id="loginScreen" class="d-flex flex-column align-items-center justify-content-start vh-100 bg-light">
+    <div id="loginScreen" class="d-flex flex-column align-items-center justify-content-start vh-100 bg-light pt-4">
+
+        <!-- Novo cabeçalho do app fora do card -->
+        <div class="mb-3 text-center" style="margin-top: 6rem;">
+            <i class="bi bi-bag-check-fill login-cart-icon me-2"></i>
+            <span class="login-app-name fw-bold">Lista de Compras</span>
+        </div>
+
+        <!-- Card de login separado -->
         <div class="card p-4 shadow-sm" style="max-width: 360px; width: 100%;">
-            <div class="d-flex justify-content-center align-items-center mb-2">
-                <i class="bi bi-bag-check-fill login-cart-icon me-2"></i>
-                <span class="login-app-name fw-bold">Lista de Compras</span>
-            </div>
             <h5 class="mb-3 text-center">Acesso Restrito</h5>
-
-            <!-- ✅ Formulário correto -->
             <form id="loginForm">
-                <input type="email" id="loginEmail" class="form-control mb-2" placeholder="E-mail" autocomplete="username"/>
-                <input type="password" id="loginPassword" class="form-control mb-3" placeholder="Senha" autocomplete="current-password" />
-                <button id="loginButton" type="submit" class="btn btn-primary w-100">Entrar</button>
+            <input type="email" id="loginEmail" class="form-control mb-2" placeholder="E-mail" autocomplete="username" />
+            <input type="password" id="loginPassword" class="form-control mb-3" placeholder="Senha" autocomplete="current-password" />
+            <button id="loginButton" type="submit" class="btn btn-primary w-100">Entrar</button>
             </form>
-
             <div id="loginError" class="text-danger mt-3 text-center d-none">E-mail ou senha inválidos</div>
         </div>
     </div>
@@ -50,14 +51,14 @@
                 </a>
 
                 <!-- Desktop: campo de busca + botão ⚙️ -->
-                <div class="d-none d-md-flex align-items-center gap-2 ms-auto">
+                <div class="d-none d-md-flex align-items-center gap-2" style="margin-left: auto; margin-right: 10rem;">
                     <input type="text" id="searchInput" class="search-input" placeholder="Buscar item..." aria-label="Buscar">
                     
                     <button id="desktopSettingsBtn" class="btn" title="Configurações">
                         <i class="bi bi-gear-fill"></i>
                     </button>
 
-                    <button id="logoutButton" class="btn d-none ms-2" title="Sair">
+                    <button id="logoutButton" class="btn d-none" title="Sair">
                         <i class="bi bi-box-arrow-right"></i>
                     </button>
 
