@@ -86,6 +86,7 @@ document.addEventListener('DOMContentLoaded', function () {
             document.body.classList.remove("login-only");
 
             logoutButton.classList.remove("d-none");
+            bsOffcanvas.hide(); // Fecha o menu offcanvas ao logar
             console.log("✅ Usuário autenticado, interface principal exibida");
         } else {
             loginScreen.classList.remove("d-none");
@@ -124,6 +125,14 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById("loginPassword").value = "";
     });
 
+    document.getElementById("logoutButtonMobile").addEventListener("click", () => {
+        firebase.auth().signOut();
+        // Limpa campos de login também, se quiser
+        document.getElementById("loginEmail").value = "";
+        document.getElementById("loginPassword").value = "";
+        // Fecha o menu offcanvas se estiver aberto
+        bsOffcanvas.hide();
+    });
 
     // --- Estado da Aplicação ---
     let categories = []; 

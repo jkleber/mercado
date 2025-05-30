@@ -688,6 +688,16 @@ body.login-only {
   color: var(--primary-color);
 }
 
+#logoutButton i {
+  color: white;
+  font-size: 1.5rem;
+}
+
+#logoutButton:hover i {
+  color: #e9ecef;
+}
+
+
 
 
 
