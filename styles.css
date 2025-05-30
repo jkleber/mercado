@@ -668,12 +668,26 @@ body {
   inset: 0;
   overflow: hidden;
   z-index: 1050; /* acima do conteúdo */
+  padding-top: 8rem; /* Ajuste esse valor conforme preferir: 2rem, 2.5rem, 3rem */
 }
 
 body.login-only {
   padding-top: 0 !important;
   overflow: hidden;
 }
+
+/* Estilo do ícone de carrinho na tela de login */
+.login-cart-icon {
+  font-size: 2rem;
+  color: var(--primary-color);
+  margin-bottom: 0.5rem;
+}
+
+.login-app-name {
+  font-size: 1.2rem;
+  color: var(--primary-color);
+}
+
 
 
 

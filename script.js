@@ -119,6 +119,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     document.getElementById("logoutButton").addEventListener("click", () => {
         firebase.auth().signOut();
+        // Limpa os campos de login
+        document.getElementById("loginEmail").value = "";
+        document.getElementById("loginPassword").value = "";
     });
 
 
@@ -548,6 +551,11 @@ document.addEventListener('DOMContentLoaded', function () {
                     checkbox.setAttribute('aria-label', `Marcar ${item.Nome}`);
                     checkbox.addEventListener('change', async () => {
                         await updateItemInFirebase(item.id, { Comprado: checkbox.checked });
+                        if (checkbox.checked) {
+                            showToast("Item Comprado!", `Você marcou "${item.Nome}" como comprado.`, "success");
+                        } else {
+                            showToast("Item Pendente!", `Você marcou "${item.Nome}" como pendente.`, "info");
+                        }
                     });
                     
                     const itemNameSpan = document.createElement('span');
