@@ -325,7 +325,6 @@ body {
     transition: all var(--transition-speed);
     flex-grow: 1; 
     word-break: break-word; 
-    margin-left: 0.5rem; 
 }
 
 .item-actions { 
@@ -722,6 +721,24 @@ body.login-only {
     margin-left: 1rem;           /* coloca o texto à esquerda */
   }
 }
+
+/* Estilo para exibir a “Marca” abaixo do nome do item */
+.item-brand {
+    display: block;                  /* Garante quebra de linha abaixo do nome */
+    color: #6c757d;                  /* Cinza claro (tom “secondary” do Bootstrap) */
+    font-size: 0.85rem;              /* Tamanho de fonte um pouco menor */
+    margin-top: 0.1rem;              /* Espaçamento pequeno entre nome e marca */
+    word-break: break-word;          /* Quebra palavra para não estourar a lista */
+}
+
+.item-text-wrapper {
+  display: flex;
+  flex-direction: column;
+  margin-left: 0.5rem;   /* dá um espaço entre o checkbox e o texto */
+}
+
+
+
 
 
 

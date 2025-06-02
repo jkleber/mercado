@@ -83,7 +83,12 @@
                     <h6>Adicionar Novo Item</h6>
                     <div class="mb-3">
                         <label for="itemInput" class="form-label">Item</label>
-                        <input type="text" id="itemInput" class="form-control" placeholder="Nome do item" required />
+                        <input type="text" id="itemInput" class="form-control" placeholder="Nome do item" maxlength="30" required />
+                    </div>
+                    <!-- **BLOCO “Marca do Pruduto”** -->
+                    <div class="mb-3">
+                        <label for="itemBrand" class="form-label">Marca do Produto (opcional)</label>
+                        <input type="text" id="itemBrand" class="form-control" placeholder="Marca do produto" maxlength="30"/>
                     </div>
                     <div class="mb-3">
                         <label for="itemQuantity" class="form-label">Quantidade</label>
@@ -104,7 +109,7 @@
                     <h6>Adicionar Nova Categoria</h6>
                     <div class="mb-3">
                         <label for="newCategoryInput" class="form-label">Nome da Categoria</label>
-                        <input type="text" id="newCategoryInput" class="form-control" placeholder="Nome da nova categoria" required />
+                        <input type="text" id="newCategoryInput" class="form-control" placeholder="Nome da nova categoria" maxlength="20" required />
                     </div>
                     <div class="mb-3">
                         <label for="newCategoryIconInput" class="form-label">Ícone (Emoji)</label>
@@ -185,7 +190,7 @@
                             <input type="hidden" id="editCategoryOldName">
                             <div class="mb-3">
                                 <label for="editCategoryName" class="form-label">Nome da Categoria</label>
-                                <input type="text" class="form-control" id="editCategoryName" required>
+                                <input type="text" class="form-control" id="editCategoryName" maxlength="20" required>
                             </div>
                             <div class="mb-3">
                                 <label for="editCategoryIcon" class="form-label">Ícone (Emoji)</label>
@@ -278,10 +283,16 @@
                                         <label for="editItemName" class="form-label">Item</label>
                                         <input type="text" id="editItemName" class="form-control" placeholder="Nome do item" required />
                                     </div>
+                                    <!-- **INÍCIO DO BLOCO “Marca (Editar)”** -->
+                                    <div class="mb-3">
+                                        <label for="editItemBrand" class="form-label">Marca (opcional)</label>
+                                        <input type="text" id="editItemBrand" class="form-control" placeholder="Marca do produto" />
+                                    </div>
                                     <div class="mb-3">
                                         <label for="editItemQuantity" class="form-label">Quantidade</label>
                                         <input type="number" id="editItemQuantity" class="form-control" value="1" min="1" />
                                     </div>
+
                                     <div class="mb-3">
                                         <label for="editCategorySelect" class="form-label">Categoria</label>
                                         <select id="editCategorySelect" class="form-select" required>

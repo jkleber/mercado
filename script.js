@@ -24,6 +24,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const itemInput = document.getElementById('itemInput');
     const itemQuantityInput = document.getElementById('itemQuantity');
     const categorySelect = document.getElementById('categorySelect');
+    const itemBrandInput = document.getElementById('itemBrand'); // Novo campo “Marca do Produto”
+    const editItemBrandInput = document.getElementById('editItemBrand');
     const newCategoryInput = document.getElementById('newCategoryInput');
     const newCategoryIconInput = document.getElementById('newCategoryIconInput');
     const emojiPickerButton = document.getElementById('emojiPickerButton');
@@ -570,9 +572,22 @@ document.addEventListener('DOMContentLoaded', function () {
                     const itemNameSpan = document.createElement('span');
                     itemNameSpan.className = 'item-name';
                     itemNameSpan.textContent = item.Nome;
+
+                    // ***INÍCIO: adicione a “Marca” aqui***
+                    const itemBrandSpan = document.createElement('span');
+                    itemBrandSpan.className = 'item-brand';
+                    itemBrandSpan.textContent = item.Marca || ''; // exibe a marca se tiver
+                    // ***FIM DO BLOCO “Marca”***
                     
                     itemContentDiv.appendChild(checkbox);
-                    itemContentDiv.appendChild(itemNameSpan);
+
+                    // CRIE um contêiner que empilhe nome + marca verticalmente:
+                    const textWrapper = document.createElement('div');
+                    textWrapper.className = 'item-text-wrapper'; 
+                    textWrapper.appendChild(itemNameSpan);
+                    
+                    textWrapper.appendChild(itemBrandSpan); // insere a marca logo após o nome
+                    itemContentDiv.appendChild(textWrapper);
                     
                     const itemActionsDiv = document.createElement('div');
                     itemActionsDiv.className = 'item-actions';
@@ -624,11 +639,12 @@ document.addEventListener('DOMContentLoaded', function () {
     function openEditItemModal(item) {
         const editItemModalElement = document.getElementById('editItemModal');
         const editItemModalInstance = new bootstrap.Modal(editItemModalElement);
+        const editCategorySelect = document.getElementById('editCategorySelect');
+        
         document.getElementById('editItemId').value = item.id;
         document.getElementById('editItemName').value = item.Nome;
         document.getElementById('editItemQuantity').value = item.Quantidade;
-        // Populate category select options and set selected value
-        const editCategorySelect = document.getElementById('editCategorySelect');
+        editItemBrandInput.value = item.Marca || '';
         editCategorySelect.innerHTML = '<option value="" disabled>Selecione a categoria</option>';
         categories.forEach(category => {
             const option = document.createElement('option');
@@ -652,11 +668,18 @@ document.addEventListener('DOMContentLoaded', function () {
         const itemName = document.getElementById('editItemName').value.trim();
         const itemQuantity = parseInt(document.getElementById('editItemQuantity').value) || 1;
         const itemCategory = document.getElementById('editCategorySelect').value;
+        const itemBrandEdited = editItemBrandInput.value.trim();
+
         if (!itemName || !itemCategory) {
             showToast("Atenção", "Nome do item e categoria são obrigatórios.", "warning");
             return;
         }
-        await updateItemInFirebase(itemId, { Nome: itemName, Quantidade: itemQuantity, Categoria: itemCategory });
+        await updateItemInFirebase(itemId, { 
+            Nome: itemName, 
+            Quantidade: itemQuantity, 
+            Categoria: itemCategory,
+            Marca: itemBrandEdited // ***ENVIE A MARCA ATUALIZADA***
+        });
         const editItemModalElement = document.getElementById('editItemModal');
         const editItemModalInstance = bootstrap.Modal.getInstance(editItemModalElement);
         editItemModalInstance.hide();
@@ -696,6 +719,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const itemNameVal = itemInput.value.trim().toLowerCase();
         const itemQuantityVal = parseInt(itemQuantityInput.value) || 1;
         const itemCategoryVal = categorySelect.value;
+        const itemBrandVal = itemBrandInput.value.trim(); // pode ficar vazia
 
         if (!itemNameVal || !itemCategoryVal) {
             showToast("Atenção", "Nome do item e categoria são obrigatórios.", "warning");
@@ -716,12 +740,14 @@ document.addEventListener('DOMContentLoaded', function () {
         await addItemToFirebase({
             Nome: itemInput.value.trim(),
             Quantidade: itemQuantityVal,
-            Categoria: itemCategoryVal,
+            Categoria: itemCategoryVal,            
+            Marca: itemBrandVal, // novo campo Marca
             Comprado: false
         });
 
         itemInput.value = '';
         itemQuantityInput.value = '1';
+        itemBrandInput.value = ''; // reseta o campo Marca
         itemInput.focus();
     });
     
