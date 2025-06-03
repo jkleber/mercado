@@ -737,6 +737,94 @@ body.login-only {
   margin-left: 0.5rem;   /* dá um espaço entre o checkbox e o texto */
 }
 
+/* 🎨 Cores de fundo e bordas laterais das caixinhas */
+.box-add-item {
+    background-color: #e3f2fd !important;
+    border-left: 4px solid #4a90e2;
+}
+
+.box-add-category {
+    background-color: #e8f5e9 !important;
+    border-left: 4px solid #43a047;
+}
+
+.box-manage-category {
+    background-color: #fff3e0 !important;
+    border-left: 4px solid #ff9800;
+}
+
+.box-options {
+    background-color: #f3e5f5 !important;
+    border-left: 4px solid #8e24aa;
+}
+
+/* Estilos gerais das caixinhas (sem hover) */
+.offcanvas-body > form.box-add-item,
+.offcanvas-body > form.box-add-category,
+.offcanvas-body > #categoryManagement.box-manage-category,
+.offcanvas-body > .download-section.box-options {
+    border: 1px solid #dee2e6;
+    border-radius: var(--border-radius);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+    transition: none !important;
+}
+
+/* 🎨 Cores personalizadas dos títulos */
+.box-add-item h6 {
+    color: #1976d2;
+}
+
+.box-add-category h6 {
+    color: #388e3c;
+}
+
+.box-manage-category h6 {
+    color: #f57c00;
+}
+
+.box-options h6 {
+    color: #6a1b9a;
+}
+
+/* 🎨 Cores dos botões das caixinhas */
+.box-add-item button {
+    background-color: #1976d2;
+    color: #fff;
+    border: none;
+}
+
+.box-add-category button {
+    background-color: #388e3c;
+    color: #fff;
+    border: none;
+}
+
+.box-manage-category button {
+    color: #fff;
+    border: none;
+}
+
+.box-options button {
+    background-color: #6a1b9a;
+    color: #fff;
+    border: none;
+}
+
+/* Estilo ao focar e ao clicar (mantendo consistência e contraste) */
+.box-add-item button:focus,
+.box-add-category button:focus,
+.box-manage-category button:focus,
+.box-options button:focus {
+    outline: none;
+    box-shadow: 0 0 0 0.2rem rgba(0,0,0,0.1);
+}
+
+.box-add-item button:active,
+.box-add-category button:active,
+.box-manage-category button:active,
+.box-options button:active {
+    transform: scale(0.98);
+}
 
 
 
