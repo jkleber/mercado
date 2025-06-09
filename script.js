@@ -548,7 +548,33 @@ document.addEventListener('DOMContentLoaded', function () {
                 headerLeft.appendChild(categoryIcon);
                 headerLeft.appendChild(categoryNameH6);
                 headerLeft.appendChild(itemCountSpan);
+
+                // ✅ Adiciona o botão “Recolher/Expandir”
+                const toggleButton = document.createElement('button');
+                toggleButton.className = 'btn-toggle-category';
+                toggleButton.innerHTML = '<i class="bi bi-chevron-up"></i>'; // Ícone inicial
+                toggleButton.setAttribute('aria-label', `Recolher ou Expandir ${category.name}`);
+                toggleButton.addEventListener('click', () => {
+                    const nextElements = [];
+                    let sibling = categoryHeader.nextElementSibling;
+                    while (sibling && !sibling.classList.contains('category-header')) {
+                        nextElements.push(sibling);
+                        sibling = sibling.nextElementSibling;
+                    }
+                    const isHidden = nextElements[0]?.style.display === 'none';
+                    nextElements.forEach(el => {
+                        el.style.display = isHidden ? '' : 'none';
+                    });
+
+                    // Altere o ícone de acordo com o estado:
+                    toggleButton.innerHTML = isHidden 
+                        ? '<i class="bi bi-chevron-up"></i>' 
+                        : '<i class="bi bi-chevron-down"></i>';
+                });
+                //fim
+
                 categoryHeader.appendChild(headerLeft);
+                categoryHeader.appendChild(toggleButton); //incluindo o botão de recolher/expandir
                 shoppingList.appendChild(categoryHeader);
                 categoryItems.forEach(item => {
                     const listItem = document.createElement('li');

@@ -826,7 +826,23 @@ body.login-only {
     transform: scale(0.98);
 }
 
+/* Estilo do botão de alternância de categorias */
+.btn-toggle-category {
+    background: none;
+    border: none;
+    padding: 0.3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    cursor: pointer;
+    border-radius: 50%;
+    transition: background-color 0.3s;
+}
 
+.btn-toggle-category:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
 
 
 
