@@ -458,9 +458,13 @@ document.addEventListener('DOMContentLoaded', function () {
         });
         if (sortableInstance) sortableInstance.destroy();
         sortableInstance = new Sortable(categoryManagementList, {
-            animation: 150, handle: '.drag-handle', ghostClass: 'dragging',
+            animation: 150,
+            handle: '.drag-handle',
+            ghostClass: 'dragging',
+            delay: 250, // 0,25 segundos para começar arrastar
+            delayOnTouchOnly: false, // adicionado
             onEnd: async (evt) => await updateCategoryOrderAndPersist(Array.from(evt.to.children).map(item => item.dataset.id))
-        });
+        });        
     }
 
     function renderEmojiPicker() { 
