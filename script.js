@@ -77,9 +77,9 @@ document.addEventListener('DOMContentLoaded', function () {
     const database = firebase.database();
     
     auth.onAuthStateChanged((user) => {
-        console.log("Auth state changed. User:", user);
-        console.log("LoginScreen DOM:", loginScreen);
-        console.log("AppContainer DOM:", appContainer);
+        //console.log("Auth state changed. User:", user);
+        //console.log("LoginScreen DOM:", loginScreen);
+        //console.log("AppContainer DOM:", appContainer);
 
         if (user && user.email?.toLowerCase() === AUTHORIZED_EMAIL.toLowerCase()) {
             
@@ -89,14 +89,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
             logoutButton.classList.remove("d-none");
             bsOffcanvas.hide(); // Fecha o menu offcanvas ao logar
-            console.log("✅ Usuário autenticado, interface principal exibida");
+            //console.log("✅ Usuário autenticado, interface principal exibida");
         } else {
             loginScreen.classList.remove("d-none");
             document.body.classList.add("login-only");
 
             appContainer.classList.add("d-none");
             logoutButton.classList.add("d-none");
-            console.log("🔒 Usuário não autenticado, tela de login exibida");
+            //console.log("🔒 Usuário não autenticado, tela de login exibida");
         }
     });
 
@@ -513,6 +513,7 @@ document.addEventListener('DOMContentLoaded', function () {
     function renderList() {
         shoppingList.innerHTML = '';
         const filteredItems = getFilteredItems();
+
         if (filteredItems.length === 0) {
             const emptyMessage = document.createElement('div');
             emptyMessage.className = 'text-center p-4 text-muted';
@@ -523,71 +524,72 @@ document.addEventListener('DOMContentLoaded', function () {
             shoppingList.appendChild(emptyMessage);
             return;
         }
+
         const itemsByCategory = {};
         filteredItems.forEach(item => {
             const categoryName = item.Categoria || 'Sem Categoria';
             if (!itemsByCategory[categoryName]) itemsByCategory[categoryName] = [];
             itemsByCategory[categoryName].push(item);
         });
+
         categories.forEach(category => {
             const categoryItems = itemsByCategory[category.name];
             if (categoryItems && categoryItems.length > 0) {
                 const categoryHeader = document.createElement('div');
                 categoryHeader.className = 'category-header';
+
                 const headerLeft = document.createElement('div');
                 headerLeft.className = 'category-header-left';
+
                 const categoryIcon = document.createElement('span');
                 categoryIcon.className = 'category-icon';
                 categoryIcon.textContent = category.icon;
-                const categoryNameH6 = document.createElement('h6'); 
+
+                const categoryNameH6 = document.createElement('h6');
                 categoryNameH6.className = 'category-name';
                 categoryNameH6.textContent = category.name;
+
                 const itemCountSpan = document.createElement('span');
                 itemCountSpan.className = 'item-count';
                 itemCountSpan.textContent = categoryItems.length;
+
                 headerLeft.appendChild(categoryIcon);
                 headerLeft.appendChild(categoryNameH6);
                 headerLeft.appendChild(itemCountSpan);
 
-                // ✅ Adiciona o botão “Recolher/Expandir”
+                // Botão para recolher/expandir usando ícone
                 const toggleButton = document.createElement('button');
                 toggleButton.className = 'btn-toggle-category';
-                toggleButton.innerHTML = '<i class="bi bi-chevron-up"></i>'; // Ícone inicial
+                toggleButton.innerHTML = '<i class="bi bi-chevron-up"></i>';
                 toggleButton.setAttribute('aria-label', `Recolher ou Expandir ${category.name}`);
                 toggleButton.addEventListener('click', () => {
-                    const nextElements = [];
-                    let sibling = categoryHeader.nextElementSibling;
-                    while (sibling && !sibling.classList.contains('category-header')) {
-                        nextElements.push(sibling);
-                        sibling = sibling.nextElementSibling;
-                    }
-                    const isHidden = nextElements[0]?.style.display === 'none';
-                    nextElements.forEach(el => {
-                        el.style.display = isHidden ? '' : 'none';
-                    });
-
-                    // Altere o ícone de acordo com o estado:
-                    toggleButton.innerHTML = isHidden 
-                        ? '<i class="bi bi-chevron-up"></i>' 
-                        : '<i class="bi bi-chevron-down"></i>';
+                    itemsWrapper.classList.toggle('collapsed');
+                    const isCollapsed = itemsWrapper.classList.contains('collapsed');
+                    toggleButton.innerHTML = isCollapsed
+                        ? '<i class="bi bi-chevron-down"></i>'
+                        : '<i class="bi bi-chevron-up"></i>';
                 });
-                //fim
 
                 categoryHeader.appendChild(headerLeft);
-                categoryHeader.appendChild(toggleButton); //incluindo o botão de recolher/expandir
+                categoryHeader.appendChild(toggleButton);
                 shoppingList.appendChild(categoryHeader);
+
+                // Cria o "wrapper" para os itens dessa categoria
+                const itemsWrapper = document.createElement('div');
+                itemsWrapper.className = 'category-items-wrapper';
+
                 categoryItems.forEach(item => {
                     const listItem = document.createElement('li');
-                    listItem.className = 'list-group-item'; 
+                    listItem.className = 'list-group-item';
                     listItem.dataset.id = item.id;
                     if (item.Comprado) listItem.classList.add('bought');
-                    
+
                     const itemContentDiv = document.createElement('div');
-                    itemContentDiv.className = 'item-content'; 
-                    
+                    itemContentDiv.className = 'item-content';
+
                     const checkbox = document.createElement('input');
                     checkbox.type = 'checkbox';
-                    checkbox.className = 'form-check-input'; 
+                    checkbox.className = 'form-check-input';
                     checkbox.checked = item.Comprado;
                     checkbox.setAttribute('aria-label', `Marcar ${item.Nome}`);
                     checkbox.addEventListener('change', async () => {
@@ -598,35 +600,32 @@ document.addEventListener('DOMContentLoaded', function () {
                             showToast("Item Pendente!", `Você marcou "${item.Nome}" como pendente.`, "info");
                         }
                     });
-                    
+
                     const itemNameSpan = document.createElement('span');
                     itemNameSpan.className = 'item-name';
                     itemNameSpan.textContent = item.Nome;
 
-                    // ***INÍCIO: adicione a “Marca” aqui***
                     const itemBrandSpan = document.createElement('span');
                     itemBrandSpan.className = 'item-brand';
-                    itemBrandSpan.textContent = item.Marca || ''; // exibe a marca se tiver
-                    // ***FIM DO BLOCO “Marca”***
-                    
+                    itemBrandSpan.textContent = item.Marca || '';
+
                     itemContentDiv.appendChild(checkbox);
 
-                    // CRIE um contêiner que empilhe nome + marca verticalmente:
                     const textWrapper = document.createElement('div');
-                    textWrapper.className = 'item-text-wrapper'; 
+                    textWrapper.className = 'item-text-wrapper';
                     textWrapper.appendChild(itemNameSpan);
-                    
-                    textWrapper.appendChild(itemBrandSpan); // insere a marca logo após o nome
+                    textWrapper.appendChild(itemBrandSpan);
+
                     itemContentDiv.appendChild(textWrapper);
-                    
+
                     const itemActionsDiv = document.createElement('div');
                     itemActionsDiv.className = 'item-actions';
-                    
+
                     const itemQuantitySpan = document.createElement('span');
-                    itemQuantitySpan.className = 'item-quantity'; 
+                    itemQuantitySpan.className = 'item-quantity';
                     itemQuantitySpan.textContent = `Qtd: ${item.Quantidade}`;
                     itemActionsDiv.appendChild(itemQuantitySpan);
-                    
+
                     const editBtn = document.createElement('button');
                     editBtn.className = 'btn-category-edit';
                     editBtn.innerHTML = '<i class="bi bi-pencil-fill"></i>';
@@ -637,33 +636,33 @@ document.addEventListener('DOMContentLoaded', function () {
                         openEditItemModal(item);
                     });
                     itemActionsDiv.appendChild(editBtn);
-                    
+
                     const deleteBtn = document.createElement('button');
-                    deleteBtn.className = 'btn-delete'; 
+                    deleteBtn.className = 'btn-delete';
                     deleteBtn.innerHTML = '<i class="bi bi-trash-fill"></i>';
                     deleteBtn.setAttribute('aria-label', `Remover ${item.Nome}`);
                     deleteBtn.title = `Remover ${item.Nome}`;
-                    deleteBtn.addEventListener('click', (e) => { 
-                        e.stopPropagation(); 
-                        itemToDeleteId = item.id;       
-                        itemToDeleteName = item.Nome;   
-                        deleteItemNameModalSpan.textContent = item.Nome; 
-                        deleteItemModalInstance.show(); 
+                    deleteBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        itemToDeleteId = item.id;
+                        itemToDeleteName = item.Nome;
+                        deleteItemNameModalSpan.textContent = item.Nome;
+                        deleteItemModalInstance.show();
                     });
-                    
+
                     itemActionsDiv.appendChild(deleteBtn);
+
                     listItem.appendChild(itemContentDiv);
                     listItem.appendChild(itemActionsDiv);
-                    
-                    shoppingList.appendChild(listItem);
+
+                    itemsWrapper.appendChild(listItem);
                 });
+
+                shoppingList.appendChild(itemsWrapper);
             }
         });
-        const uncategorizedItems = itemsByCategory['Sem Categoria'];
-        if (uncategorizedItems && uncategorizedItems.length > 0) {
-            // (código para renderizar itens sem categoria - mantido)
-        }
     }
+
 
     // Function to open the edit item modal and populate fields
     function openEditItemModal(item) {
@@ -996,10 +995,34 @@ document.addEventListener('DOMContentLoaded', function () {
         updateFabIconState(false); 
     });
     
-    console.log("Aplicativo Lista de Compras v2.7 (Download PDF)");
+    //console.log("Aplicativo Lista de Compras v2.7 (Download PDF)");
 
     document.getElementById('logoutButton').addEventListener('click', () => {
         auth.signOut();
     });
-    
+
+    // ✅ Remover foco antes de fechar modais - acessibilidade
+    // Para o botão "Cancelar" de todos os modais
+    document.querySelectorAll('.modal .btn-secondary').forEach(btn => {
+        btn.addEventListener('click', () => {
+            btn.blur();
+        });
+    });
+
+    // Para o botão "Salvar Alterações" do modal de edição de item
+    const saveEditItemButton = document.querySelector('#editItemModal .btn-primary');
+    if (saveEditItemButton) {
+        saveEditItemButton.addEventListener('click', () => {
+            saveEditItemButton.blur();
+        });
+    }
+
+    // Para o botão "Salvar Alterações" do modal de edição de categoria
+    const saveEditCategoryButton = document.getElementById('saveCategoryChanges');
+        if (saveEditCategoryButton) {
+        saveEditCategoryButton.addEventListener('click', () => {
+            saveEditCategoryButton.blur();
+        });
+    }
+        
 });

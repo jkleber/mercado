@@ -268,7 +268,7 @@ body {
     color: white;
     font-weight: bold;
     border-radius: var(--border-radius);
-    margin-bottom: 0.75rem; 
+    margin-bottom: 0.5rem; /* Ajusta a distância entre a categoria e o primeiro item */
     box-shadow: 0 2px 8px var(--shadow-color);
     font-size: 1.1rem; 
 }
@@ -298,7 +298,7 @@ body {
 
 .list-group-item {
     border-radius: var(--border-radius);
-    margin-bottom: 0.75rem;
+    margin-bottom: 0.5rem; /* Ajusta o espaçamento entre as linhas dos itens */
     box-shadow: 0 2px 8px var(--shadow-color);
     transition: background-color var(--transition-speed), box-shadow var(--transition-speed);
     display: flex; 
@@ -843,6 +843,17 @@ body.login-only {
 .btn-toggle-category:hover {
     background-color: rgba(255, 255, 255, 0.1);
 }
+
+.category-items-wrapper {
+    overflow: hidden;
+    max-height: 1000px; /* Altura máxima suficiente para a maioria dos casos */
+    transition: max-height 0.4s ease;
+}
+
+.category-items-wrapper.collapsed {
+    max-height: 0;
+}
+
 
 
 
