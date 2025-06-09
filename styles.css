@@ -847,21 +847,11 @@ body.login-only {
 .category-items-wrapper {
     overflow: hidden;
     max-height: 1000px; /* Altura máxima suficiente para a maioria dos casos */
-    transition: max-height 0.4s ease;
+    transition: max-height 0.6s ease; /* Altera a velocidade de mostrar/esconder itens da categoria */
 }
 
 .category-items-wrapper.collapsed {
     max-height: 0;
 }
-
-
-
-
-
-
-
-
-
-
 
 
