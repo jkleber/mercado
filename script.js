@@ -577,6 +577,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 // Cria o "wrapper" para os itens dessa categoria
                 const itemsWrapper = document.createElement('div');
                 itemsWrapper.className = 'category-items-wrapper';
+                
+                // Esconde os itens se a categoria estiver vazia ou se for "all"
+                if (currentFilter === 'all') {
+                    itemsWrapper.classList.add('collapsed');
+                }
 
                 categoryItems.forEach(item => {
                     const listItem = document.createElement('li');
