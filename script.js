@@ -139,7 +139,9 @@ document.addEventListener('DOMContentLoaded', function () {
     // --- Estado da Aplicação ---
     let categories = []; 
     let items = []; 
-    let currentFilter = 'all';
+    // let currentFilter = 'all';
+    let currentFilter = 'pending';
+    
     let expandedCategories = new Set();
     let searchTerm = '';
     let sortableInstance = null;
