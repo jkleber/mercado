@@ -565,31 +565,30 @@ document.addEventListener('DOMContentLoaded', function () {
                 toggleButton.setAttribute('aria-label', `Recolher ou Expandir ${category.name}`);
                 
                 toggleButton.addEventListener('click', () => {
-                    const isCollapsed = itemsWrapper.classList.contains('collapsed');
+                    const wasCollapsed = itemsWrapper.classList.contains('collapsed');
 
-                    if (currentFilter === 'all' && isCollapsed) {
-                        // ➡️ Fecha todas as outras categorias abertas antes de abrir esta
+                    if (currentFilter === 'all') {
+                        // Fecha todas as outras categorias abertas e atualiza ícones
                         const allWrappers = document.querySelectorAll('.category-items-wrapper');
                         allWrappers.forEach(wrapper => {
-                            if (!wrapper.classList.contains('collapsed')) {
+                            const header = wrapper.previousElementSibling;
+                            const icon = header?.querySelector('.btn-toggle-category i');
+                            if (wrapper !== itemsWrapper) {
                                 wrapper.classList.add('collapsed');
-                                const header = wrapper.previousElementSibling;
-                                if (header) {
-                                    const icon = header.querySelector('.btn-toggle-category i');
-                                    if (icon) icon.className = 'bi bi-chevron-down';
-                                    const headerName = header.querySelector('.category-name')?.textContent;
-                                    if (headerName) expandedCategories.delete(headerName);
-                                }
+                                if (icon) icon.className = 'bi bi-chevron-down';
+                                const headerName = header?.querySelector('.category-name')?.textContent;
+                                if (headerName) expandedCategories.delete(headerName);
                             }
                         });
                     }
 
-                    // Abre/fecha a categoria atual
+                    // Agora alterna a categoria atual
                     itemsWrapper.classList.toggle('collapsed');
                     const nowCollapsed = itemsWrapper.classList.contains('collapsed');
-                    toggleButton.innerHTML = nowCollapsed
-                        ? '<i class="bi bi-chevron-down"></i>'
-                        : '<i class="bi bi-chevron-up"></i>';
+                    const currentIcon = toggleButton.querySelector('i');
+                    if (currentIcon) {
+                        currentIcon.className = nowCollapsed ? 'bi bi-chevron-down' : 'bi bi-chevron-up';
+                    }
 
                     // Atualiza o set de categorias expandidas
                     if (!nowCollapsed) {
