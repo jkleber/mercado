@@ -140,6 +140,7 @@ document.addEventListener('DOMContentLoaded', function () {
     let categories = []; 
     let items = []; 
     let currentFilter = 'all';
+    let expandedCategories = new Set();
     let searchTerm = '';
     let sortableInstance = null;
     let localRawCategories = []; 
@@ -562,12 +563,40 @@ document.addEventListener('DOMContentLoaded', function () {
                 toggleButton.className = 'btn-toggle-category';
                 toggleButton.innerHTML = '<i class="bi bi-chevron-up"></i>';
                 toggleButton.setAttribute('aria-label', `Recolher ou Expandir ${category.name}`);
+                
                 toggleButton.addEventListener('click', () => {
-                    itemsWrapper.classList.toggle('collapsed');
                     const isCollapsed = itemsWrapper.classList.contains('collapsed');
-                    toggleButton.innerHTML = isCollapsed
+
+                    if (currentFilter === 'all' && isCollapsed) {
+                        // ➡️ Fecha todas as outras categorias abertas antes de abrir esta
+                        const allWrappers = document.querySelectorAll('.category-items-wrapper');
+                        allWrappers.forEach(wrapper => {
+                            if (!wrapper.classList.contains('collapsed')) {
+                                wrapper.classList.add('collapsed');
+                                const header = wrapper.previousElementSibling;
+                                if (header) {
+                                    const icon = header.querySelector('.btn-toggle-category i');
+                                    if (icon) icon.className = 'bi bi-chevron-down';
+                                    const headerName = header.querySelector('.category-name')?.textContent;
+                                    if (headerName) expandedCategories.delete(headerName);
+                                }
+                            }
+                        });
+                    }
+
+                    // Abre/fecha a categoria atual
+                    itemsWrapper.classList.toggle('collapsed');
+                    const nowCollapsed = itemsWrapper.classList.contains('collapsed');
+                    toggleButton.innerHTML = nowCollapsed
                         ? '<i class="bi bi-chevron-down"></i>'
                         : '<i class="bi bi-chevron-up"></i>';
+
+                    // Atualiza o set de categorias expandidas
+                    if (!nowCollapsed) {
+                        expandedCategories.add(category.name);
+                    } else {
+                        expandedCategories.delete(category.name);
+                    }
                 });
 
                 categoryHeader.appendChild(headerLeft);
@@ -579,7 +608,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 itemsWrapper.className = 'category-items-wrapper';
                 
                 // Esconde os itens se a categoria estiver vazia ou se for "all"
-                if (currentFilter === 'all') {
+                if (currentFilter === 'all' && !expandedCategories.has(category.name)) {
                     itemsWrapper.classList.add('collapsed');
                 }
 
@@ -597,8 +626,18 @@ document.addEventListener('DOMContentLoaded', function () {
                     checkbox.className = 'form-check-input';
                     checkbox.checked = item.Comprado;
                     checkbox.setAttribute('aria-label', `Marcar ${item.Nome}`);
+                    
                     checkbox.addEventListener('change', async () => {
                         await updateItemInFirebase(item.id, { Comprado: checkbox.checked });
+
+                        if (currentFilter === 'all') {
+                            const categoryWrapper = checkbox.closest('.category-items-wrapper');
+                            const categoryHeader = categoryWrapper.previousElementSibling;
+                            const categoryName = categoryHeader?.querySelector('.category-name')?.textContent;
+                            if (categoryName) expandedCategories.add(categoryName);
+                            renderList();
+                        }
+
                         if (checkbox.checked) {
                             showToast("Item Comprado!", `Você marcou "${item.Nome}" como comprado.`, "success");
                         } else {
