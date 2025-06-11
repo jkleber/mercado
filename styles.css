@@ -268,7 +268,7 @@ body {
     color: white;
     font-weight: bold;
     border-radius: var(--border-radius);
-    margin-bottom: 0.5rem; /* Ajusta a distância entre a categoria e o primeiro item */
+    margin-bottom: 0.25rem; /* Ajusta a distância entre a categoria e o primeiro item */
     box-shadow: 0 2px 8px var(--shadow-color);
     font-size: 1.1rem; 
 }
@@ -298,7 +298,7 @@ body {
 
 .list-group-item {
     border-radius: var(--border-radius);
-    margin-bottom: 0.5rem; /* Ajusta o espaçamento entre as linhas dos itens */
+    margin-bottom: 0.25rem; /* Ajusta o espaçamento entre as linhas dos itens */
     box-shadow: 0 2px 8px var(--shadow-color);
     transition: background-color var(--transition-speed), box-shadow var(--transition-speed);
     display: flex; 
