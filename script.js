@@ -999,7 +999,8 @@ document.addEventListener('DOMContentLoaded', function () {
             doc.setFontSize(11);
             } else if (entry.type === 'item') {
             const prefix = entry.Comprado ? '[X]' : '[ ]';
-            let text = `${prefix} ${entry.Nome}`;
+            const marca = entry.Marca ? ` - ${entry.Marca}` : ''; // <-- adição
+            let text = `${prefix} ${entry.Nome}${marca}`;         // <-- usa a marca
             if (entry.Quantidade > 1) text += ` (Qtd: ${entry.Quantidade})`;
             doc.text(text, currentX + 5, currentY);
             }
