@@ -535,6 +535,13 @@ document.addEventListener('DOMContentLoaded', function () {
             itemsByCategory[categoryName].push(item);
         });
 
+        // Ordenar os itens de cada categoria por nome
+        for (const categoria in itemsByCategory) {
+            itemsByCategory[categoria].sort((a, b) =>
+                a.Nome.localeCompare(b.Nome, 'pt-BR')
+            );
+        }
+
         categories.forEach(category => {
             const categoryItems = itemsByCategory[category.name];
             if (categoryItems && categoryItems.length > 0) {
@@ -940,6 +947,13 @@ document.addEventListener('DOMContentLoaded', function () {
             itemsByCategory[cat].push(item);
         });
 
+        // Ordena os itens de cada categoria por nome
+        for (const cat in itemsByCategory) {
+            itemsByCategory[cat].sort((a, b) =>
+                a.Nome.localeCompare(b.Nome, 'pt-BR')
+            );
+        }
+
         const orderedCategories = Array.isArray(categories)
             ? categories.map(c => c.name)
             : [];
@@ -998,7 +1012,7 @@ document.addEventListener('DOMContentLoaded', function () {
             doc.setFont(undefined, 'normal');
             doc.setFontSize(11);
             } else if (entry.type === 'item') {
-            const prefix = entry.Comprado ? '[X]' : '[ ]';
+            const prefix = entry.Comprado ? '[ X ]' : '[    ]';
             const marca = entry.Marca ? ` - ${entry.Marca}` : ''; // <-- adição
             let text = `${prefix} ${entry.Nome}${marca}`;         // <-- usa a marca
             if (entry.Quantidade > 1) text += ` (Qtd: ${entry.Quantidade})`;
