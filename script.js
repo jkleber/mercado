@@ -568,48 +568,66 @@ document.addEventListener('DOMContentLoaded', function () {
                 headerLeft.appendChild(itemCountSpan);
 
                 // Botão para recolher/expandir usando ícone
+                // Botão (seta) continua visível
                 const toggleButton = document.createElement('button');
                 toggleButton.className = 'btn-toggle-category';
                 toggleButton.innerHTML = '<i class="bi bi-chevron-up"></i>';
                 toggleButton.setAttribute('aria-label', `Recolher ou Expandir ${category.name}`);
-                
-                toggleButton.addEventListener('click', () => {
-                    const wasCollapsed = itemsWrapper.classList.contains('collapsed');
 
-                    if (currentFilter === 'all') {
-                        // Fecha todas as outras categorias abertas e atualiza ícones
-                        const allWrappers = document.querySelectorAll('.category-items-wrapper');
-                        allWrappers.forEach(wrapper => {
-                            const header = wrapper.previousElementSibling;
-                            const icon = header?.querySelector('.btn-toggle-category i');
-                            if (wrapper !== itemsWrapper) {
-                                wrapper.classList.add('collapsed');
-                                if (icon) icon.className = 'bi bi-chevron-down';
-                                const headerName = header?.querySelector('.category-name')?.textContent;
-                                if (headerName) expandedCategories.delete(headerName);
-                            }
-                        });
-                    }
+                // --- Função única para expandir/recolher (usada por clique na seta e na faixa azul) ---
+                function toggleCategory() {
+                const wasCollapsed = itemsWrapper.classList.contains('collapsed');
 
-                    // Agora alterna a categoria atual
-                    itemsWrapper.classList.toggle('collapsed');
-                    const nowCollapsed = itemsWrapper.classList.contains('collapsed');
-                    const currentIcon = toggleButton.querySelector('i');
-                    if (currentIcon) {
-                        currentIcon.className = nowCollapsed ? 'bi bi-chevron-down' : 'bi bi-chevron-up';
+                if (currentFilter === 'all') {
+                    // Fecha todas as outras categorias
+                    const allWrappers = document.querySelectorAll('.category-items-wrapper');
+                    allWrappers.forEach(wrapper => {
+                    const header = wrapper.previousElementSibling;
+                    const icon = header?.querySelector('.btn-toggle-category i');
+                    if (wrapper !== itemsWrapper) {
+                        wrapper.classList.add('collapsed');
+                        if (icon) icon.className = 'bi bi-chevron-down';
+                        const headerName = header?.querySelector('.category-name')?.textContent;
+                        if (headerName) expandedCategories.delete(headerName);
                     }
+                    });
+                }
 
-                    // Atualiza o set de categorias expandidas
-                    if (!nowCollapsed) {
-                        expandedCategories.add(category.name);
-                    } else {
-                        expandedCategories.delete(category.name);
-                    }
+                // Alterna a atual
+                itemsWrapper.classList.toggle('collapsed');
+                const nowCollapsed = itemsWrapper.classList.contains('collapsed');
+                const currentIcon = toggleButton.querySelector('i');
+                if (currentIcon) currentIcon.className = nowCollapsed ? 'bi bi-chevron-down' : 'bi bi-chevron-up';
+
+                if (!nowCollapsed) expandedCategories.add(category.name);
+                else expandedCategories.delete(category.name);
+                }
+
+                // 1) Clique na seta (comportamento existente)
+                toggleButton.addEventListener('click', (e) => {
+                e.stopPropagation(); // evita duplo disparo
+                toggleCategory();
                 });
+
+                // 2) Clique em QUALQUER PARTE da faixa azul
+                categoryHeader.addEventListener('click', () => toggleCategory());
+
+                // 3) Acessível no teclado (Enter / Espaço)
+                categoryHeader.setAttribute('tabindex', '0');
+                categoryHeader.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    toggleCategory();
+                }
+                });
+
+                // (opcional) cursor de mão na faixa azul
+                categoryHeader.style.cursor = 'pointer';
 
                 categoryHeader.appendChild(headerLeft);
                 categoryHeader.appendChild(toggleButton);
                 shoppingList.appendChild(categoryHeader);
+
 
                 // Cria o "wrapper" para os itens dessa categoria
                 const itemsWrapper = document.createElement('div');
